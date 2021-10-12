@@ -15,11 +15,19 @@
             ],
             "get": {
                 "summary": "該当するツイートを返す",
+                "parameters": [
+                    {
+                        "name": "replied_to",
+                        "type": "integer",
+                        "x-example": 12345,
+                        "required": false
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/TweetDetail"
+                            "$ref": "#/definitions/Tweet"
                         }
                     },
                     "404": {
@@ -54,7 +62,8 @@
                         "name": "limit",
                         "in": "query",
                         "type": "integer",
-                        "default": 30
+                        "default": 30,
+                        "maximum": 100
                     }
                 ],
                 "responses": {
@@ -120,54 +129,6 @@
                     },
                     "404": {
                         "description": "user not found"
-                    }
-                }
-            },
-            "delete": {
-                "description": "該当するユーザーを削除",
-                "security": [{"cookieAuth":[]}],
-                "responses": {
-                    "204": {
-                        "description": "OK"
-                    },
-                    "404": {
-                        "description": "user not found"
-                    }
-                }
-            },
-            "put": {
-                "security": [{"cookieAuth":[]}],
-                "consumes": ["application/x-www-form-urlencoded"],
-                "description": "更新したいフィールドだけformに入れて送ると、アップデートしてくれる",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "formData",
-                        "type": "string",
-                        "required": false
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "type": "string",
-                        "required": false
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema":{
-                            "$ref": "#/definitions/User"
-                        }
-                    },
-                    "404": {
-                        "description": "user not found"
-                    },
-                    "400": {
-                        "description": "the username is too long"
-                    },
-                    "403": {
-                        "description": "the username has already taken"
                     }
                 }
             }
@@ -253,15 +214,60 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "該当するユーザーを削除",
+                "security": [{"cookieAuth":[]}],
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "user not found"
+                    }
+                }
+            },
+            "patch": {
+                "security": [{"cookieAuth":[]}],
+                "consumes": ["application/x-www-form-urlencoded"],
+                "description": "更新したいフィールドだけformに入れて送ると、アップデートしてくれる",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema":{
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "404": {
+                        "description": "user not found"
+                    },
+                    "400": {
+                        "description": "the username is too long"
+                    },
+                    "409": {
+                        "description": "the username has already taken"
+                    }
+                }
             }
         },
-        "/v1/tweets/{tw_id}/favorites/{usr_id}": {
+        "/v1/tweets/{tw_id}/favorites": {
             "parameters": [
                 {
                     "$ref": "#/parameters/tw_id"
-                },
-                {
-                    "$ref": "#/parameters/usr_id"
                 }
             ],
             "get": {
@@ -277,28 +283,32 @@
                         }
                     }
                 }
-            },
-            "post": {
+            }
+        },
+        "/v1/tweets/{tw_id}/favorites/{usr_id}": {
+            "parameters": [
+                {
+                    "$ref": "#/parameters/tw_id"
+                },
+                {
+                    "$ref": "#/parameters/usr_id"
+                }
+            ],
+            "put": {
                 "description": "favする",
                 "security": [{"cookieAuth":[]}],
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "403": {
-                        "description": "you already favorited this"
                     }
                 }
             },
             "delete": {
-                "description": "ファボを消す",
+                "description": "favを消す",
                 "security": [{"cookieAuth":[]}],
                 "responses": {
                     "204": {
                         "description": "OK"
-                    },
-                    "404": {
-                        "description": "you didn't fav the tweet"
                     }
                 }
             }
@@ -380,7 +390,7 @@
         "TweetDetail": {
             "type": "object",
             "properties": {
-                "name": {
+                "user_name": {
                     "type": "string",
                     "description": "ユーザー名",
                     "example": "user"
