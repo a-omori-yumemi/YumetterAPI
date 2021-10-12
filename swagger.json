@@ -46,6 +46,12 @@
                         "schema": {
                             "$ref": "#/definitions/error"
                         }
+                    },
+                    "401": {
+                        "description": "You are not logged in"
+                    },
+                    "403": {
+                        "description": "Only author can delete this tweet"
                     }
                 }
             }
@@ -117,6 +123,9 @@
                         "schema": {
                             "$ref": "#/definitions/error"
                         }
+                    },
+                    "401": {
+                        "description": "You are not logged in"
                     }
                 }
             }
@@ -229,11 +238,14 @@
                         "schema": {
                             "$ref": "#/definitions/User"
                         }
+                    },
+                    "401": {
+                        "description": "You are not logged in"
                     }
                 }
             },
             "delete": {
-                "description": "該当するユーザーを削除",
+                "description": "自分のアカウントを削除",
                 "security": [
                     {
                         "cookieAuth": []
@@ -243,8 +255,8 @@
                     "204": {
                         "description": "OK"
                     },
-                    "404": {
-                        "description": "user not found"
+                    "401": {
+                        "description": "You are not logged in"
                     }
                 }
             },
@@ -279,14 +291,14 @@
                             "$ref": "#/definitions/User"
                         }
                     },
-                    "404": {
-                        "description": "user not found"
-                    },
                     "400": {
                         "description": "the username is too long"
                     },
                     "409": {
                         "description": "the username has already taken"
+                    },
+                    "401": {
+                        "description": "You are not logged in"
                     }
                 }
             }
@@ -331,6 +343,12 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "401": {
+                        "description": "You are not logged in"
+                    },
+                    "403": {
+                        "description": "You can't fav tweet as another one"
                     }
                 }
             },
@@ -344,6 +362,12 @@
                 "responses": {
                     "204": {
                         "description": "OK"
+                    },
+                    "401": {
+                        "description": "You are not logged in"
+                    },
+                    "403": {
+                        "description": "You can't delete another one's fav"
                     }
                 }
             }
