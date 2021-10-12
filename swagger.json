@@ -1,0 +1,433 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Api Documentation",
+        "version": "1.0",
+        "title": "Api Documentation"
+    },
+    "basePath": "/",
+    "paths": {
+        "/v1/tweets/{tw_id}": {
+            "parameters": [
+                {
+                    "$ref": "#/parameters/tw_id"
+                }
+            ],
+            "get": {
+                "summary": "該当するツイートを返す",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TweetDetail"
+                        }
+                    },
+                    "404": {
+                        "description": "tw_idのツイートが見つからない",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "該当するツイートを消す",
+                "security": [{"cookieAuth":[]}],
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "tw_idのツイートが見つからない",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tweets": {
+            "get": {
+                "summary": "全世界タイムライン",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 30
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/TweetDetail"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "ツイートする",
+                "security": [{"cookieAuth":[]}],
+                "consumes": ["application/x-www-form-urlencoded"],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "formData",
+                        "type": "string",
+                        "maxLength": 280,
+                        "minLength": 1,
+                        "x-example": "hello yumetter"
+                    },
+                    {
+                        "name": "replied_to",
+                        "in": "formData",
+                        "type": "integer",
+                        "required": false,
+                        "x-example": 123456
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request (body is too short or the tweet you replied to is missing)",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{usr_id}": {
+            "parameters": [
+                {
+                    "$ref": "#/parameters/usr_id"
+                }
+            ],
+            "get": {
+                "description": "該当するユーザー情報をGET",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema":{
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "404": {
+                        "description": "user not found"
+                    }
+                }
+            },
+            "delete": {
+                "description": "該当するユーザーを削除",
+                "security": [{"cookieAuth":[]}],
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "user not found"
+                    }
+                }
+            },
+            "put": {
+                "security": [{"cookieAuth":[]}],
+                "consumes": ["application/x-www-form-urlencoded"],
+                "description": "更新したいフィールドだけformに入れて送ると、アップデートしてくれる",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema":{
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "404": {
+                        "description": "user not found"
+                    },
+                    "400": {
+                        "description": "the username is too long"
+                    },
+                    "403": {
+                        "description": "the username has already taken"
+                    }
+                }
+            }
+        },
+        "/v1/users": {
+            "post": {
+                "description": "ユーザー追加",
+                "consumes": ["application/x-www-form-urlencoded"],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "type": "string",
+                        "x-example": "realdonaldtrump"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "type": "string",
+                        "x-example": "superpassword"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }, 
+                    "400": {
+                        "description": "the username is too long"
+                    },
+                    "403": {
+                        "description": "the username has already taken"
+                    }
+                }
+            }
+        },
+        "/v1/users/login": {
+            "post": {
+                "description": "ログイン",
+                "consumes": ["application/x-www-form-urlencoded"],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        },
+                        "headers": {
+                            "Set-Cookie": {
+                                "type": "string",
+                                "x-example": "SESSIONID=asldladskdasald; HttpOnly; Secure; Path=/;"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "failed to login"
+                    }
+                }
+            }
+        },
+        "/v1/users/me": {
+            "get": {
+                "description": "get yourself",
+                "security": [{"cookieAuth":[]}],
+                "responses": {
+                    "200":{
+                        "description": "OK",
+                        "schema":{
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tweets/{tw_id}/favorites/{usr_id}": {
+            "parameters": [
+                {
+                    "$ref": "#/parameters/tw_id"
+                },
+                {
+                    "$ref": "#/parameters/usr_id"
+                }
+            ],
+            "get": {
+                "description": "get all favorites for the tweet",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Favorite"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "favする",
+                "security": [{"cookieAuth":[]}],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "403": {
+                        "description": "you already favorited this"
+                    }
+                }
+            },
+            "delete": {
+                "description": "ファボを消す",
+                "security": [{"cookieAuth":[]}],
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "you didn't fav the tweet"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "cookieAuth": { 
+            "type": "apiKey",
+            "name": "Cookie",
+            "in": "header"
+        }
+    },
+    "parameters": {
+        "tw_id": {
+            "name": "tw_id",
+            "in": "path",
+            "description": "Tweet ID",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 123456
+        },
+        "usr_id": {
+            "name": "usr_id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 123
+        }
+    },
+    "definitions": {
+        "User": {
+            "type": "object",
+            "properties": {
+                "usr_id": {
+                    "$ref": "#/definitions/usr_id"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "realdonaldtrump",
+                    "description": "ユーザー名"
+                }
+            }
+        },
+        "Tweet": {
+            "type": "object",
+            "properties": {
+                "tw_id": {
+                    "$ref": "#/definitions/tw_id"
+                },
+                "usr_id": {
+                    "$ref": "#/definitions/usr_id"
+                },
+                "body": {
+                    "type": "string",
+                    "example": "Hello Yumetter!",
+                    "description": "ツイート本文",
+                    "maxLength": 280,
+                    "minLength": 1
+                },
+                "replied_to": {
+                    "$ref": "#/definitions/tw_id",
+                    "description": "リプライ先（ある場合）"
+                },
+                "creted_at": {
+                    "type":"string",
+                    "format": "date"
+                }
+            },
+            "required": [
+                "tw_id",
+                "usr_id",
+                "body",
+                "created_at"
+            ]
+        },
+        "TweetDetail": {
+            "type": "object",
+            "properties": {
+                "tweet": {
+                    "$ref": "#/definitions/Tweet"
+                },
+                "fav_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 10221,
+                    "description": "ファボ数"
+                },
+                "reply_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 10,
+                    "description": "リプライ数"
+                },
+                "favorited": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "リクエスト者がFavしているか"
+                }
+            }
+        },
+        "Favorite": {
+            "type": "object",
+            "description": "いいね",
+            "properties": {
+                "tw_id": {
+                    "$ref": "#/definitions/tw_id"
+                },
+                "usr_id": {
+                    "$ref": "#/definitions/usr_id"
+                }
+            }
+        },
+        "tw_id": {
+            "type": "integer",
+            "format": "int32",
+            "example": 123456,
+            "description": "Tweet ID"
+        },
+        "usr_id": {
+            "type": "integer",
+            "format": "int32",
+            "example": 123,
+            "description": "User ID"
+        },
+        "error": {
+            "type": "string"
+        }
+    }
+}
