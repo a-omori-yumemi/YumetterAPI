@@ -205,7 +205,7 @@
                         "headers": {
                             "Set-Cookie": {
                                 "type": "string",
-                                "x-example": "SESSIONID=asldladskdasald; HttpOnly; Secure; Path=/;"
+                                "x-example": "SESSION=asldladskdasald; HttpOnly; Secure; Path=/;"
                             }
                         }
                     },
