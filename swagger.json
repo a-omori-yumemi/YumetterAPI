@@ -380,6 +380,11 @@
         "TweetDetail": {
             "type": "object",
             "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "ユーザー名",
+                    "example": "user"
+                },
                 "tweet": {
                     "$ref": "#/definitions/Tweet"
                 },
