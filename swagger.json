@@ -434,7 +434,7 @@
                     "$ref": "#/definitions/tw_id",
                     "description": "リプライ先（ある場合）"
                 },
-                "creted_at": {
+                "created_at": {
                     "type": "string",
                     "format": "date"
                 }
