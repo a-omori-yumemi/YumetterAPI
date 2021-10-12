@@ -15,14 +15,6 @@
             ],
             "get": {
                 "summary": "該当するツイートを返す",
-                "parameters": [
-                    {
-                        "name": "replied_to",
-                        "type": "integer",
-                        "x-example": 12345,
-                        "required": false
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -40,7 +32,11 @@
             },
             "delete": {
                 "summary": "該当するツイートを消す",
-                "security": [{"cookieAuth":[]}],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "OK"
@@ -58,6 +54,13 @@
             "get": {
                 "summary": "全世界タイムライン",
                 "parameters": [
+                    {
+                        "name": "replied_to",
+                        "in": "query",
+                        "type": "integer",
+                        "x-example": 12345,
+                        "required": false
+                    },
                     {
                         "name": "limit",
                         "in": "query",
@@ -80,8 +83,14 @@
             },
             "post": {
                 "summary": "ツイートする",
-                "security": [{"cookieAuth":[]}],
-                "consumes": ["application/x-www-form-urlencoded"],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
                 "parameters": [
                     {
                         "name": "body",
@@ -123,7 +132,7 @@
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema":{
+                        "schema": {
                             "$ref": "#/definitions/User"
                         }
                     },
@@ -136,7 +145,9 @@
         "/v1/users": {
             "post": {
                 "description": "ユーザー追加",
-                "consumes": ["application/x-www-form-urlencoded"],
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
                 "parameters": [
                     {
                         "name": "name",
@@ -157,7 +168,7 @@
                         "schema": {
                             "$ref": "#/definitions/User"
                         }
-                    }, 
+                    },
                     "400": {
                         "description": "the username is too long"
                     },
@@ -170,7 +181,9 @@
         "/v1/users/login": {
             "post": {
                 "description": "ログイン",
-                "consumes": ["application/x-www-form-urlencoded"],
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
                 "parameters": [
                     {
                         "name": "name",
@@ -205,11 +218,15 @@
         "/v1/users/me": {
             "get": {
                 "description": "get yourself",
-                "security": [{"cookieAuth":[]}],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
                 "responses": {
-                    "200":{
+                    "200": {
                         "description": "OK",
-                        "schema":{
+                        "schema": {
                             "$ref": "#/definitions/User"
                         }
                     }
@@ -217,7 +234,11 @@
             },
             "delete": {
                 "description": "該当するユーザーを削除",
-                "security": [{"cookieAuth":[]}],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "OK"
@@ -228,8 +249,14 @@
                 }
             },
             "patch": {
-                "security": [{"cookieAuth":[]}],
-                "consumes": ["application/x-www-form-urlencoded"],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
                 "description": "更新したいフィールドだけformに入れて送ると、アップデートしてくれる",
                 "parameters": [
                     {
@@ -248,7 +275,7 @@
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema":{
+                        "schema": {
                             "$ref": "#/definitions/User"
                         }
                     },
@@ -296,7 +323,11 @@
             ],
             "put": {
                 "description": "favする",
-                "security": [{"cookieAuth":[]}],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -305,7 +336,11 @@
             },
             "delete": {
                 "description": "favを消す",
-                "security": [{"cookieAuth":[]}],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "OK"
@@ -315,7 +350,7 @@
         }
     },
     "securityDefinitions": {
-        "cookieAuth": { 
+        "cookieAuth": {
             "type": "apiKey",
             "name": "Cookie",
             "in": "header"
@@ -376,7 +411,7 @@
                     "description": "リプライ先（ある場合）"
                 },
                 "creted_at": {
-                    "type":"string",
+                    "type": "string",
                     "format": "date"
                 }
             },
