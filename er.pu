@@ -1,0 +1,27 @@
+
+@startuml
+entity Tweet {
+    * tw_id: INT PK
+    * usr_id: FK(User.usr_id CASCADE)
+    * body: VARCHAR(280)
+    * fav_count: INT
+    * created_at: DATE
+    replied_to: typeof(tw_id)
+    --
+    INDEX created_at DESC
+    INDEX (usr_id, created_at) DESC
+}
+entity User {
+    * usr_id: INT PK
+    password: VARBINARY(?)
+}
+entity Favorite {
+    * tw_id: FK(Tweet.tw_id CASCADE)
+    * usr_id: FK(User)
+    --
+    PRIMARY KEY (tw_id, usr_id)
+}
+User ||--o{ Tweet
+User ||--o{ Favorite
+Tweet ||--o{ Favorite
+@enduml
