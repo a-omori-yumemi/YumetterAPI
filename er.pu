@@ -12,7 +12,7 @@ entity Tweet {
 }
 entity User {
     * usr_id: INT PK
-    * usr_name: VARCHAR(64)
+    * name: VARCHAR(64)
     * created_at: DATE
     * updated_at: DATE
     password: VARBINARY(?)
