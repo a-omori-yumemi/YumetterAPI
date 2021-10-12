@@ -1,5 +1,5 @@
 swag.gen: swagger.json
-	mkdir gen -p &\
+	mkdir -p gen &\
 	swagger generate model -f swagger.json -t gen
 
 .PHONY: clean
