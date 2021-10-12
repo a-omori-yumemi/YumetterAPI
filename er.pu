@@ -4,7 +4,6 @@ entity Tweet {
     * tw_id: INT PK
     * usr_id: FK(User.usr_id CASCADE)
     * body: VARCHAR(280)
-    * fav_count: INT
     * created_at: DATE
     replied_to: typeof(tw_id)
     --
@@ -13,11 +12,15 @@ entity Tweet {
 }
 entity User {
     * usr_id: INT PK
+    * usr_name: VARCHAR(64)
+    * created_at: DATE
+    * updated_at: DATE
     password: VARBINARY(?)
 }
 entity Favorite {
     * tw_id: FK(Tweet.tw_id CASCADE)
-    * usr_id: FK(User)
+    * usr_id: FK(User.usr_id)
+    * created_at: DATE
     --
     PRIMARY KEY (tw_id, usr_id)
 }
