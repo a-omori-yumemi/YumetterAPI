@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type TwIDType int32
+type TwIDType uint64
 
 type Tweet struct {
 	Body      string    `db:"body"`
