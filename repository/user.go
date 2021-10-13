@@ -6,5 +6,5 @@ type IUserRepository interface {
 	FindUser(usrID model.UsrIDType) (model.User, error)
 	AddUser(user model.User) (model.User, error)
 	DeleteUser(usrID model.UsrIDType) error
-	PatchUser(name *string, password *string) error
+	PatchUser(usrID model.UsrIDType, name *model.UserName, password *model.HashedPassword) error
 }
