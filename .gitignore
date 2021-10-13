@@ -14,4 +14,8 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+<<<<<<< HEAD
 YumetterAPI
+=======
+handler/gen
+>>>>>>> 136694d (なんとなく設計だけ)
