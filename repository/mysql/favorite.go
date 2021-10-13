@@ -6,7 +6,7 @@ import (
 )
 
 type MySQLFavoriteRepository struct {
-	repository.IFavoriteRepositoty
+	repository.IFavoriteRepository
 }
 
 func NewMySQLFavoriteRepository(DB db.MySQLDB) MySQLFavoriteRepository {
