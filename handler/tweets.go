@@ -48,12 +48,12 @@ func PostTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
-		tw_id, err := strconv.Atoi(c.Param("tw_id"))
+		twID, err := strconv.Atoi(c.Param("tw_id"))
 		if err != nil {
 			return echo.NewHTTPError(400, err)
 		}
 
-		tweet, err := tweetRepo.FindTweet(model.TwIDType(tw_id))
+		tweet, err := tweetRepo.FindTweet(model.TwIDType(twID))
 		if err != nil {
 			return err
 		}
@@ -66,14 +66,7 @@ func GetTweets(tweetService service.ITweetService) echo.HandlerFunc {
 	const DefaultLimitValue = 30
 
 	GetParams := func(c echo.Context) (*model.UsrIDType, int, *model.TwIDType, error) {
-		var usrID *model.UsrIDType = nil
-		usrIDTmp, ok := c.Get(ContextUserKey).(string)
-		if ok {
-			if usrIDTmp, err := strconv.Atoi(usrIDTmp); err == nil {
-				usrID = new(model.UsrIDType)
-				*usrID = model.UsrIDType(usrIDTmp)
-			}
-		}
+		usrID := GetSessionUserID(c)
 
 		limit, err := strconv.Atoi(c.QueryParam("limit"))
 		if err != nil {
@@ -104,15 +97,30 @@ func GetTweets(tweetService service.ITweetService) echo.HandlerFunc {
 	}
 }
 
-func DeleteTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
+func DeleteTweet(tweetRepo service.ITweetService) echo.HandlerFunc {
 
-	return func(c echo.Context) error {
-		tw_id, err := strconv.Atoi(c.Param("tw_id"))
-		if err != nil {
-			return echo.NewHTTPError(400, err)
+	GetParams := func(c echo.Context) (model.UsrIDType, model.TwIDType, error) {
+		var usrID model.UsrIDType
+		if usrIDPtr := GetSessionUserID(c); usrIDPtr != nil {
+			usrID = *usrIDPtr
+		} else {
+			return 0, 0, echo.NewHTTPError(401)
 		}
 
-		err = tweetRepo.DeleteTweet(model.TwIDType(tw_id))
+		twID, err := strconv.Atoi(c.Param("tw_id"))
+		if err != nil {
+			return 0, 0, echo.NewHTTPError(400, err)
+		}
+		return usrID, model.TwIDType(twID), nil
+	}
+
+	return func(c echo.Context) error {
+		usrID, twID, err := GetParams(c)
+		if err != nil {
+			return err
+		}
+
+		err = tweetRepo.DeleteTweetWithAuth(usrID, twID)
 		if err != nil {
 			return err
 		}
