@@ -50,7 +50,7 @@ func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tw_id, err := strconv.Atoi(c.Param("tw_id"))
 		if err != nil {
-			return err
+			return echo.NewHTTPError(400, err)
 		}
 
 		tweet, err := tweetRepo.FindTweet(model.TwIDType(tw_id))
@@ -109,7 +109,7 @@ func DeleteTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tw_id, err := strconv.Atoi(c.Param("tw_id"))
 		if err != nil {
-			return err
+			return echo.NewHTTPError(400, err)
 		}
 
 		err = tweetRepo.DeleteTweet(model.TwIDType(tw_id))
