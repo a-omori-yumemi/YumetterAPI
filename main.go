@@ -33,12 +33,14 @@ func main() {
 		log.Error(err)
 		return
 	}
+}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS TEST (id INT PRIMARY KEY, text VARCHAR(100))")
+func construct(conf db.DBConfig) repository.Repositories {
+	DB, err := db.NewMySQLDB(conf)
 	if err != nil {
-		log.Error(err)
-		return
+		log.Fatal("failed to connect DB ", err)
 	}
+	repos := repository.Repositories{}
 
 	id := time.Now().UnixMicro() % 10000000
 	_, err = db.Exec("INSERT INTO TEST (id, text) values (?, 'help!')", id)

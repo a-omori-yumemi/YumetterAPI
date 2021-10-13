@@ -9,6 +9,6 @@ type MySQLFavoriteRepository struct {
 	repository.IFavoriteRepositoty
 }
 
-func NewMySQLFavoriteRepository(DB db.DB) MySQLFavoriteRepository {
+func NewMySQLFavoriteRepository(DB db.MySQLDB) MySQLFavoriteRepository {
 	return MySQLFavoriteRepository{}
 }
