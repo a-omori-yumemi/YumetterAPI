@@ -1,4 +1,4 @@
-swag.gen: swagger.json
+handler/gen: swagger.json
 	mkdir -p handler/gen &\
 	swagger generate model -f swagger.json -t handler/gen
 
