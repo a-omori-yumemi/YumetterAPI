@@ -10,7 +10,7 @@ type ITweetService interface {
 	FindTweets(limit int, replied_to *model.TwIDType) ([]model.Tweet, error)
 	AddTweet(tweet model.Tweet) (model.Tweet, error)
 	DeleteTweet(twID model.TwIDType) error
-	FindTweetDetails(watcherID model.TwIDType, limit int32, replied_to *model.TwIDType) ([]TweetDetail, error)
+	FindTweetDetails(watcherID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]TweetDetail, error)
 }
 
 type TweetDetail struct {
