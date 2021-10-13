@@ -1,0 +1,26 @@
+CREATE TABLE User (
+    usr_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL UNIQUE,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Tweet (
+    tw_id INT AUTO_INCREMENT PRIMARY KEY,
+    usr_id INT NOT NULL,
+    body VARCHAR(280) NOT NULL,
+    replied_to INT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_usr_id(usr_id, created_at DESC),
+    INDEX idx_replied_to(replied_to, created_at DESC),
+    FOREIGN KEY (usr_id) REFERENCES User(usr_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Favorite (
+    tw_id INT NOT NULL,
+    usr_id INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (tw_id, usr_id),
+    FOREIGN KEY (tw_id) REFERENCES Tweet(tw_id) ON DELETE CASCADE,
+    FOREIGN KEY (usr_id) REFERENCES User(usr_id) ON DELETE CASCADE
+);
