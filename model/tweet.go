@@ -19,7 +19,10 @@ const BodyMaxLength = 280
 const BodyMinLength = 1
 
 func (t Tweet) Validate() error {
-	if len(t.Body) < BodyMinLength || len(t.Body) > BodyMaxLength {
+	if len(t.Body) < BodyMinLength {
+		return fmt.Errorf("body is too short")
+	}
+	if len(t.Body) > BodyMaxLength {
 		return fmt.Errorf("body is too long")
 	}
 	return nil
