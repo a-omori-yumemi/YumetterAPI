@@ -118,7 +118,7 @@ func PatchMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 		}
 
 		var name *model.UserName = nil
-		if nameTmp := model.UserName(c.FormValue("name")); nameTmp != nil {
+		if nameTmp := model.UserName(c.FormValue("name")); nameTmp != "" {
 			name = new(model.UserName)
 			*name = nameTmp
 			if err := name.Validate(); err != nil {
@@ -140,7 +140,19 @@ func PatchMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		usrID, name, pass, err := GetParams(c)
-		err = userRepo.PatchUser(usrID, name, pass)
+
+		var hashed *model.HashedPassword = nil
+		if pass != nil {
+			hashedTmp, err := pass.Hash()
+			if err != nil {
+				return err
+			} else {
+				hashed = new(model.HashedPassword)
+				*hashed = hashedTmp
+			}
+		}
+
+		err = userRepo.PatchUser(usrID, name, hashed)
 		if err != nil {
 			return err
 		}
