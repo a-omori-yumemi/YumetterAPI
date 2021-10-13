@@ -5,9 +5,12 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
-	"github.com/labstack/gommon/log"
+	"github.com/a-omori-yumemi/YumetterAPI/db"
+	"github.com/a-omori-yumemi/YumetterAPI/handler"
+	"github.com/a-omori-yumemi/YumetterAPI/repository"
+	"github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
+	"github.com/a-omori-yumemi/YumetterAPI/service"
+	"github.com/labstack/echo/v4"
 )
 
 type DBConfig struct {
@@ -33,34 +36,28 @@ func main() {
 		log.Error(err)
 		return
 	}
+	repos, servics := construct(conf)
+	handler.SetRoute(e, repos, servics)
+	e.Logger.Fatal("failed to start server", e.Start(":"+port))
 }
 
-func construct(conf db.DBConfig) repository.Repositories {
+func construct(conf db.DBConfig) (repository.Repositories, service.Services) {
 	DB, err := db.NewMySQLDB(conf)
 	if err != nil {
 		log.Fatal("failed to connect DB ", err)
 	}
-	repos := repository.Repositories{}
-
-	id := time.Now().UnixMicro() % 10000000
-	_, err = db.Exec("INSERT INTO TEST (id, text) values (?, 'help!')", id)
-	if err != nil {
-		log.Error(err)
-		return
+	repos := repository.Repositories{
+		FavRepo:   mysql.NewMySQLFavoriteRepository(DB),
+		TweetRepo: mysql.NewMySQLTweetRepository(DB),
+		UserRepo:  mysql.NewMySQLUserRepository(DB),
 	}
-	rows := []struct {
-		Id   int32  `db:"id"`
-		Text string `db:"text"`
-	}{}
-	err = db.Select(&rows, "SELECT * FROM TEST")
-	if err != nil {
-		log.Error(err)
-		return
+	services := service.Services{
+		TweetService: service.NewTweetService(
+			repos.FavRepo,
+			repos.TweetRepo,
+			repos.UserRepo,
+		),
 	}
 
-	for _, row := range rows {
-		log.Print(row.Id, row.Text)
-	}
-	time.Sleep(10)
-	fmt.Println("Hello Docker")
+	return repos, services
 }
