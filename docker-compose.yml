@@ -1,0 +1,26 @@
+version: '3'
+services:
+  web:
+    build: .
+    restart: always
+    environment:
+      DB_PORT: 3306
+      DB_HOST: db
+      DB_DATABSE: yumetter_db
+      DB_USER: yume
+      DB_PASS: yumetterDBPass
+    ports:
+     - "5000:5000"
+    depends_on:
+      - db
+  db:
+    build: docker-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: yumetter_db
+      MYSQL_USER: yume
+      MYSQL_PASSWORD: yumetterDBPass
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - ./docker-db/data:/var/lib/mysql
+      - ./docker-db/my.cnf:/etc/mysql/conf.d/my.cnf
