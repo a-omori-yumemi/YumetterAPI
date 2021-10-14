@@ -11,37 +11,46 @@ import (
 
 func PostTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 
-	GetParams := func(c echo.Context) (string, *model.TwIDType, error) {
-		body := c.FormValue("body")
+	GetParams := func(c echo.Context) (usrID model.UsrIDType, body string, repliedTo *model.TwIDType, err error) {
+		if usrIDPtr := GetSessionUserID(c); usrIDPtr != nil {
+			usrID = *usrIDPtr
+		} else {
+			return usrID, body, repliedTo, echo.NewHTTPError(401)
+		}
 
-		var repliedTo *model.TwIDType = nil
+		body = c.FormValue("body")
+
 		if repliedToStr := c.FormValue("replied_to"); repliedToStr != "" {
 			if repliedToTmp, err := strconv.Atoi(repliedToStr); err == nil {
 				repliedTo = new(model.TwIDType)
 				*repliedTo = model.TwIDType(repliedToTmp)
 			} else {
-				return body, repliedTo, echo.NewHTTPError(400, "invalid parameter: {replied_to}")
+				return usrID, body, repliedTo, echo.NewHTTPError(400, "invalid parameter: {replied_to}")
 			}
 		}
 
-		return body, repliedTo, nil
+		return usrID, body, repliedTo, nil
 	}
 
 	return func(c echo.Context) error {
-		body, repliedTo, err := GetParams(c)
+		usrID, body, repliedTo, err := GetParams(c)
 		if err != nil {
 			return err
 		}
 		tweet := model.Tweet{
 			Body:      body,
+			UsrID:     usrID,
 			RepliedTo: repliedTo,
 		}
 		if tweet.Validate() != nil {
 			return echo.NewHTTPError(400, "body is too short or the tweet you replied to is missing")
 		}
 
-		_, err = tweetRepo.AddTweet(tweet)
-		return err
+		tweet, err = tweetRepo.AddTweet(tweet)
+		if err != nil {
+			return err
+		}
+		return c.JSON(200, tweet)
 	}
 }
 
@@ -125,6 +134,8 @@ func DeleteTweet(tweetRepo usecase.ITweetService) echo.HandlerFunc {
 		err = tweetRepo.DeleteTweetWithAuth(usrID, twID)
 		if err == repository.ErrNotFound {
 			return echo.NewHTTPError(404, "tweet not found")
+		} else if err == usecase.ErrForbidden {
+			return echo.NewHTTPError(403, "Only author can delete this tweet")
 		} else if err != nil {
 			return err
 		}
