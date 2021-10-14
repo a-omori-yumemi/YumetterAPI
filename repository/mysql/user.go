@@ -19,6 +19,10 @@ func (r *MySQLFavoriteRepository) FindUser(usrID model.UsrIDType) (user model.Us
 	err = r.db.DB.Get(&user, "SELECT * FROM User WHERE usr_id=?", usrID)
 	return user, err
 }
+func (r *MySQLFavoriteRepository) FindUserByName(name model.UserName) (user model.User, err error) {
+	err = r.db.DB.Get(&user, "SELECT * FROM User WHERE name=?", name)
+	return user, err
+}
 func (r *MySQLFavoriteRepository) AddUser(user model.User) (ret model.User, err error) {
 	res, err := r.db.DB.Exec("INSERT INTO User (name, password) VALUES (?,?)", user.Name, user.HashedPassword)
 	if err != nil {

@@ -4,6 +4,7 @@ import "github.com/a-omori-yumemi/YumetterAPI/model"
 
 type IUserRepository interface {
 	FindUser(usrID model.UsrIDType) (model.User, error)
+	FindUserByName(name model.UserName) (model.User, error)
 	AddUser(user model.User) (model.User, error)
 	DeleteUser(usrID model.UsrIDType) error
 	UpdateName(usrID model.UsrIDType, name model.UserName) error
