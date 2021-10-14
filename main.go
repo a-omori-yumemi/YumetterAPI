@@ -9,7 +9,7 @@ import (
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
-	"github.com/a-omori-yumemi/YumetterAPI/service"
+	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
 )
 
@@ -36,12 +36,12 @@ func main() {
 		log.Error(err)
 		return
 	}
-	repos, servics := construct(conf)
-	handler.SetRoute(e, repos, servics)
+	repos, usecases := construct(conf)
+	handler.SetRoute(e, repos, usecases)
 	e.Logger.Fatal("failed to start server", e.Start(":"+port))
 }
 
-func construct(conf db.DBConfig) (repository.Repositories, service.Services) {
+func construct(conf db.DBConfig) (repository.Repositories, usecase.Usecases) {
 	DB, err := db.NewMySQLDB(conf)
 	if err != nil {
 		log.Fatal("failed to connect DB ", err)
@@ -51,11 +51,15 @@ func construct(conf db.DBConfig) (repository.Repositories, service.Services) {
 		TweetRepo: mysql.NewMySQLTweetRepository(DB),
 		UserRepo:  mysql.NewMySQLUserRepository(DB),
 	}
-	services := service.Services{
-		TweetService: service.NewTweetService(
+	services := usecase.Usecases{
+		TweetService: usecase.NewTweetService(
 			repos.FavRepo,
 			repos.TweetRepo,
 			repos.UserRepo,
+		),
+		Authenticator: usecase.NewJWTAuthenticator(
+			repos.UserRepo,
+			os.Getenv("SECRET_KEY"),
 		),
 	}
 

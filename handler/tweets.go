@@ -5,7 +5,7 @@ import (
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
-	"github.com/a-omori-yumemi/YumetterAPI/service"
+	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
 )
 
@@ -62,7 +62,7 @@ func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 	}
 }
 
-func GetTweets(tweetService service.ITweetService) echo.HandlerFunc {
+func GetTweets(tweetService usecase.ITweetService) echo.HandlerFunc {
 	const DefaultLimitValue = 30
 
 	GetParams := func(c echo.Context) (*model.UsrIDType, int, *model.TwIDType, error) {
@@ -97,7 +97,7 @@ func GetTweets(tweetService service.ITweetService) echo.HandlerFunc {
 	}
 }
 
-func DeleteTweet(tweetRepo service.ITweetService) echo.HandlerFunc {
+func DeleteTweet(tweetRepo usecase.ITweetService) echo.HandlerFunc {
 
 	GetParams := func(c echo.Context) (model.UsrIDType, model.TwIDType, error) {
 		var usrID model.UsrIDType
