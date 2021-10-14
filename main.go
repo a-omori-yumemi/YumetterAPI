@@ -20,11 +20,11 @@ type DBConfig struct {
 
 func main() {
 	conf := DBConfig{
-		Port:     os.Getenv("DB_PORT"),
-		Host:     os.Getenv("DB_HOST"),
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASS"),
-		Database: os.Getenv("DB_DATABASE"),
+		Port:     os.Getenv("MYSQL_PORT"),
+		Host:     os.Getenv("MYSQL_HOST"),
+		User:     os.Getenv("MYSQL_USER"),
+		Password: os.Getenv("MYSQL_PASSWORD"),
+		Database: os.Getenv("MYSQL_DATABASE"),
 	}
 	dsn := conf.User + ":" + conf.Password + "@tcp(" + conf.Host + ":" + conf.Port + ")/" + conf.Database + "?parseTime=true&multiStatements=true"
 	fmt.Print(dsn)
@@ -47,7 +47,7 @@ func main() {
 		return
 	}
 	rows := []struct {
-		Id   int    `db:"id"`
+		Id   int32  `db:"id"`
 		Text string `db:"text"`
 	}{}
 	err = db.Select(&rows, "SELECT * FROM TEST")
