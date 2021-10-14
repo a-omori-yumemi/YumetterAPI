@@ -15,7 +15,7 @@ type HashedPassword []byte
 type User struct {
 	UsrID          UsrIDType      `db:"usr_id" json:"usr_id"`
 	Name           UserName       `db:"name" json:"name"`
-	HashedPassword HashedPassword `db:"password"`
+	HashedPassword HashedPassword `db:"password" json:"-"`
 	CreatedAt      time.Time      `db:"created_at" json:"created_at"`
 	UpadtedAt      time.Time      `db:"updated_at" json:"updated_at"`
 }
