@@ -24,7 +24,7 @@ func main() {
 		Host:     os.Getenv("DB_HOST"),
 		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASS"),
-		Database: os.Getenv("DB_DATABSE"),
+		Database: os.Getenv("DB_DATABASE"),
 	}
 	dsn := conf.User + ":" + conf.Password + "@tcp(" + conf.Host + ":" + conf.Port + ")/" + conf.Database + "?parseTime=true&multiStatements=true"
 	fmt.Print(dsn)
