@@ -140,23 +140,27 @@ func PatchMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		usrID, name, pass, err := GetParams(c)
-
-		var hashed *model.HashedPassword = nil
-		if pass != nil {
-			hashedTmp, err := pass.Hash()
-			if err != nil {
-				return err
-			} else {
-				hashed = new(model.HashedPassword)
-				*hashed = hashedTmp
-			}
-		}
-
-		err = userRepo.PatchUser(usrID, name, hashed)
 		if err != nil {
 			return err
 		}
 
+		if name != nil {
+			err = userRepo.UpdateName(usrID, *name)
+			if err != nil {
+				return err
+			}
+		}
+
+		if pass != nil {
+			hashed, err := pass.Hash()
+			if err != nil {
+				return err
+			}
+			err = userRepo.UpdatePassword(usrID, hashed)
+			if err != nil {
+				return err
+			}
+		}
 		return c.NoContent(204)
 	}
 }
