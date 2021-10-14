@@ -145,6 +145,11 @@ func DeleteMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 			return err
 		}
 
+		c.SetCookie(&http.Cookie{
+			Name:   SessionCookieName,
+			MaxAge: -1,
+		})
+
 		return c.NoContent(204)
 	}
 }
