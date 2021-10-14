@@ -12,11 +12,11 @@ type ITweetService interface {
 }
 
 type TweetDetail struct {
-	UserName   model.UserName
-	Tweet      model.Tweet
-	FavCount   int
-	ReplyCount int
-	Favorited  bool
+	UserName   model.UserName `json:"user_name"`
+	Tweet      model.Tweet    `json:"tweet"`
+	FavCount   int            `json:"fav_count"`
+	ReplyCount int            `json:"reply_count"`
+	Favorited  bool           `json:"favorited"`
 }
 
 func (t TweetDetail) Validate() error {

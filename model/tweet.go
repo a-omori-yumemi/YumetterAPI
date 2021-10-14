@@ -11,7 +11,7 @@ type Tweet struct {
 	Body      string    `db:"body" json:"body"`
 	TwID      TwIDType  `db:"tw_id" json:"tw_id"`
 	UsrID     UsrIDType `db:"usr_id" json:"usr_id"`
-	CreatedAt time.Time `db:"craeted_at" json:"created_at"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	RepliedTo *TwIDType `db:"replied_to" json:"replied_to,omitempty"`
 }
 

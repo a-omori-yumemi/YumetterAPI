@@ -38,7 +38,7 @@ func PUTFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		return c.JSON(200, fav)
+		return c.NoContent(200)
 	}
 }
 func DELETEFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
@@ -77,7 +77,7 @@ func GETFavorites(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		return c.JSON(204, favs)
+		return c.JSON(200, favs)
 	}
 
 }

@@ -22,6 +22,14 @@ type DBConfig struct {
 }
 
 func main() {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Pre(middleware.RemoveTrailingSlash())
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
 	conf := DBConfig{
 		Port:     os.Getenv("MYSQL_PORT"),
 		Host:     os.Getenv("MYSQL_HOST"),

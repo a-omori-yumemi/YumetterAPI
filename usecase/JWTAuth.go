@@ -48,17 +48,14 @@ func (a *JWTAuthenticator) Login(name model.UserName, password model.Password) (
 }
 
 func (a *JWTAuthenticator) UseSession(tokenString string) (model.UsrIDType, error) {
-	// Parse the token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// since we only use the one private key to sign the tokens,
-		// we also only use its public counter part to verify
+	token, err := jwt.ParseWithClaims(tokenString, &Claim{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.secretKey), nil
 	})
 	if err != nil {
 		return 0, fmt.Errorf("invalid session")
 	}
 	if claim, ok := token.Claims.(*Claim); ok {
-		return claim.UsrID, err
+		return claim.UsrID, nil
 	} else {
 		return 0, fmt.Errorf("invalid session")
 	}

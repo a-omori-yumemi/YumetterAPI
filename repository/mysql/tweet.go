@@ -16,15 +16,20 @@ func NewMySQLTweetRepository(DB db.MySQLDB) *MySQLTweetRepository {
 }
 
 func (r *MySQLTweetRepository) FindTweet(twID model.TwIDType) (tweet model.Tweet, err error) {
-	err = r.db.DB.Get(&tweet, "SELECT * FROM Tweet WHERE tw_id=? ORDER BY created_at", twID)
+	err = r.db.DB.Get(&tweet, "SELECT * FROM Tweet WHERE tw_id=? ORDER BY created_at DESC", twID)
 	return tweet, interpretMySQLError(err)
 }
 func (r *MySQLTweetRepository) FindTweets(limit int, replied_to *model.TwIDType) (tweets []model.Tweet, err error) {
-	err = r.db.DB.Select(&tweets, "SELECT * FROM Tweet WHERE TRUE=? OR replied_to=? ORDER BY created_at  LIMIT ?", replied_to == nil, replied_to, limit)
+	tweets = []model.Tweet{}
+	if replied_to == nil {
+		err = r.db.DB.Select(&tweets, "SELECT * FROM Tweet ORDER BY created_at DESC LIMIT ?", limit)
+	} else {
+		err = r.db.DB.Select(&tweets, "SELECT * FROM Tweet WHERE replied_to=? ORDER BY created_at DESC LIMIT ?", replied_to, limit)
+	}
 	return tweets, interpretMySQLError(err)
 }
 func (r *MySQLTweetRepository) AddTweet(tweet model.Tweet) (ret model.Tweet, err error) {
-	res, err := r.db.DB.Exec("INSERT INTO Tweet (body, tw_id, usr_id, replied_to) VALUES (?,?,?,?)", tweet.Body, tweet.TwID, tweet.UsrID, tweet.RepliedTo)
+	res, err := r.db.DB.Exec("INSERT INTO Tweet (body, usr_id, replied_to) VALUES (?,?,?)", tweet.Body, tweet.UsrID, tweet.RepliedTo)
 	if err != nil {
 		return ret, interpretMySQLError(err)
 	}

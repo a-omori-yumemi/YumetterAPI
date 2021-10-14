@@ -33,7 +33,9 @@ func (s *TweetService) DeleteTweetWithAuth(requestUserID model.UsrIDType, twID m
 	if tw.UsrID != requestUserID {
 		return ErrForbidden
 	}
-	return nil
+
+	err = s.DeleteTweet(twID)
+	return err
 }
 
 func (s *TweetService) FindTweetDetails(
@@ -46,17 +48,22 @@ func (s *TweetService) FindTweetDetails(
 		return []TweetDetail{}, err
 	}
 
-	tweetDetails := make([]TweetDetail, len(tweets))
+	tweetDetails := make([]TweetDetail, 0, len(tweets))
 	// キャッシュで解決しよう
 	for _, tweet := range tweets {
 		user, err1 := s.userRepo.FindUser(tweet.UsrID)
 		favs, err2 := s.favRepo.FindFavorites(tweet.TwID)
-		replies, err3 := s.FindTweets(10000000, tweet.RepliedTo)
-		favorited := false
+		replies, err3 := s.FindTweets(10000000, &tweet.TwID)
+
 		var err4 error
+		favorited := false
 		if requestUserID != nil {
 			_, err4 = s.favRepo.FindFavorite(tweet.TwID, *requestUserID)
-			favorited = err == repository.ErrNotFound
+			if err4 == repository.ErrNotFound {
+				err4 = nil
+			} else if err4 == nil {
+				favorited = true
+			}
 		}
 		if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
 			return tweetDetails, multierr.Combine(err1, err2, err3, err4)
