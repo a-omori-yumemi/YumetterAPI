@@ -26,6 +26,6 @@ func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 		return MySQLDB{}, err
 	}
 
-	_, err = sqlx.LoadFile(db, "db/init.sql")
+	// _, err = sqlx.LoadFile(db, "db/init.sql")
 	return MySQLDB{db}, err
 }
