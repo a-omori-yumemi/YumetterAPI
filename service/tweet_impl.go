@@ -19,8 +19,8 @@ type TweetService struct {
 func NewTweetService(
 	favRepo repository.IFavoriteRepository,
 	tweetRepo repository.ITweetRepository,
-	userRepo repository.IUserRepository) TweetService {
-	return TweetService{favRepo: favRepo, tweetRepo: tweetRepo, userRepo: userRepo}
+	userRepo repository.IUserRepository) *TweetService {
+	return &TweetService{favRepo: favRepo, tweetRepo: tweetRepo, userRepo: userRepo}
 }
 
 var ErrForbidden error = fmt.Errorf("forbidden operation")

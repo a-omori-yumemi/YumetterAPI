@@ -9,6 +9,6 @@ type MySQLTweetRepository struct {
 	repository.ITweetRepository
 }
 
-func NewMySQLTweetRepository(DB db.MySQLDB) MySQLTweetRepository {
-	return MySQLTweetRepository{}
+func NewMySQLTweetRepository(DB db.MySQLDB) *MySQLTweetRepository {
+	return &MySQLTweetRepository{}
 }
