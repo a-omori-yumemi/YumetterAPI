@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
-	"github.com/labstack/echo/v4"
+	"github.com/jmoiron/sqlx"
+	"github.com/labstack/gommon/log"
 )
 
 type DBConfig struct {
