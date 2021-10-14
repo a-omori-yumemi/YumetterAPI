@@ -2,10 +2,12 @@ package handler
 
 import (
 	"github.com/a-omori-yumemi/YumetterAPI/model"
+	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
 )
 
 const ContextUserKey = "USER_ID_KEY"
+const SessionCookieName = "SESSION"
 
 func GetSessionUserID(c echo.Context) *model.UsrIDType {
 	var usrID *model.UsrIDType = nil
@@ -17,9 +19,17 @@ func GetSessionUserID(c echo.Context) *model.UsrIDType {
 	return usrID
 }
 
-func AuthUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		c.Set(ContextUserKey, 12345)
-		return next(c)
+func AuthUserMiddleware(auth usecase.IAuthenticator) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cookie, err := c.Cookie(SessionCookieName)
+			if err == nil {
+				usrID, err := auth.UseSession(cookie.Value)
+				if err == nil {
+					c.Set(ContextUserKey, usrID)
+				}
+			}
+			return next(c)
+		}
 	}
 }

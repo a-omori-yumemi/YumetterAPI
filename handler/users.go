@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
+	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
 )
 
@@ -68,9 +71,41 @@ func RegisterUser(userRepo repository.IUserRepository) echo.HandlerFunc {
 	}
 }
 
-func LoginUser(userRepo repository.IUserRepository) echo.HandlerFunc {
+func LoginUser(auth usecase.IAuthenticator) echo.HandlerFunc {
 
+	GetParams := func(c echo.Context) (name model.UserName, pass model.Password, err error) {
+		name = model.UserName(c.FormValue("name"))
+		if err := name.Validate(); err != nil {
+			return name, pass, echo.NewHTTPError(400, err)
+		}
+		pass = model.Password(c.FormValue("password"))
+		if err := pass.Validate(); err != nil {
+			return name, pass, echo.NewHTTPError(400, err)
+		}
+
+		return name, pass, nil
+	}
+
+	// headerのセット
 	return func(c echo.Context) error {
+		name, pass, err := GetParams(c)
+		if err != nil {
+			return err
+		}
+		token, err := auth.Login(name, pass)
+		if err != nil {
+			return echo.NewHTTPError(401, err)
+		}
+
+		c.SetCookie(&http.Cookie{
+			Name:     SessionCookieName,
+			Value:    token,
+			MaxAge:   int(time.Hour) * 24 * 3,
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
+			Path:     "/",
+			HttpOnly: true,
+		})
 		return nil
 	}
 }
