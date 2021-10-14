@@ -26,5 +26,5 @@ func SetRoute(e *echo.Echo, repos repository.Repositories, usecases usecase.Usec
 	favoritesg := tweetsg.Group("/:tw_id/favorites")
 	favoritesg.GET("/", GETFavorites(repos.FavRepo))
 	favoritesg.PUT("/:usr_id", PUTFavorite(repos.FavRepo), AuthUserMiddleware(usecases.Authenticator))
-	favoritesg.DELETE("/:usr_id", DELTEFavorite(repos.FavRepo), AuthUserMiddleware(usecases.Authenticator))
+	favoritesg.DELETE("/:usr_id", DELETEFavorite(repos.FavRepo), AuthUserMiddleware(usecases.Authenticator))
 }

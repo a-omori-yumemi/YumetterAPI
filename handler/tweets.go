@@ -54,7 +54,9 @@ func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 		}
 
 		tweet, err := tweetRepo.FindTweet(model.TwIDType(twID))
-		if err != nil {
+		if err == repository.ErrNotFound {
+			return echo.NewHTTPError(404, "tweet not found")
+		} else if err != nil {
 			return err
 		}
 
@@ -121,7 +123,9 @@ func DeleteTweet(tweetRepo usecase.ITweetService) echo.HandlerFunc {
 		}
 
 		err = tweetRepo.DeleteTweetWithAuth(usrID, twID)
-		if err != nil {
+		if err == repository.ErrNotFound {
+			return echo.NewHTTPError(404, "tweet not found")
+		} else if err != nil {
 			return err
 		}
 

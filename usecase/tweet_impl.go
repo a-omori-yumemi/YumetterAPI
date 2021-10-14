@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
@@ -57,7 +56,7 @@ func (s *TweetService) FindTweetDetails(
 		var err4 error
 		if requestUserID != nil {
 			_, err4 = s.favRepo.FindFavorite(tweet.TwID, *requestUserID)
-			favorited = err == sql.ErrNoRows
+			favorited = err == repository.ErrNotFound
 		}
 		if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
 			return tweetDetails, multierr.Combine(err1, err2, err3, err4)

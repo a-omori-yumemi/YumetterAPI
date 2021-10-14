@@ -18,11 +18,11 @@ func NewMySQLFavoriteRepository(DB db.MySQLDB) *MySQLFavoriteRepository {
 
 func (r *MySQLFavoriteRepository) FindFavorite(TwID model.TwIDType, UsrID model.UsrIDType) (ret model.Favorite, err error) {
 	err = r.db.DB.Get(&ret, "SELECT FROM Favorite WHERE tw_id=? and usr_id=?", TwID, UsrID)
-	return ret, err
+	return ret, interpretMySQLError(err)
 }
 func (r *MySQLFavoriteRepository) FindFavorites(TwID model.TwIDType) (favs []model.Favorite, err error) {
 	err = r.db.DB.Select(&favs, "SELECT FROM Favorite WHERE tw_id=?", TwID)
-	return favs, err
+	return favs, interpretMySQLError(err)
 }
 
 // ignores duplicate key

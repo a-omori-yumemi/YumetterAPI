@@ -62,9 +62,10 @@ func RegisterUser(userRepo repository.IUserRepository) echo.HandlerFunc {
 		if err := user.Validate(); err != nil {
 			return err
 		}
-
 		user, err = userRepo.AddUser(user)
-		if err != nil {
+		if err == repository.ErrDuplicateKey {
+			return echo.NewHTTPError(409, "the username has already taken")
+		} else if err != nil {
 			return err
 		}
 		return c.JSON(200, user)
@@ -119,7 +120,9 @@ func GetMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 		}
 
 		user, err := userRepo.FindUser(model.UsrIDType(*usrID))
-		if err != nil {
+		if err == repository.ErrNotFound {
+			return echo.NewHTTPError(500, "user not found")
+		} else if err != nil {
 			return err
 		}
 
@@ -136,7 +139,9 @@ func DeleteMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 		}
 
 		err := userRepo.DeleteUser(model.UsrIDType(*usrID))
-		if err != nil {
+		if err == repository.ErrNotFound {
+			return echo.NewHTTPError(500, "user not found")
+		} else if err != nil {
 			return err
 		}
 
@@ -181,7 +186,9 @@ func PatchMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 
 		if name != nil {
 			err = userRepo.UpdateName(usrID, *name)
-			if err != nil {
+			if err == repository.ErrDuplicateKey {
+				return echo.NewHTTPError(409, "the username has already taken")
+			} else if err != nil {
 				return err
 			}
 		}

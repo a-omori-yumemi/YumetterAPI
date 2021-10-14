@@ -41,7 +41,7 @@ func PUTFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
 		return c.JSON(200, fav)
 	}
 }
-func DELTEFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
+func DELETEFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		twID, usrID, err := GetTwUsrParams(c)
