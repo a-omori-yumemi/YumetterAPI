@@ -20,7 +20,7 @@ func (r *MySQLTweetRepository) FindTweet(twID model.TwIDType) (tweet model.Tweet
 	return tweet, err
 }
 func (r *MySQLTweetRepository) FindTweets(limit int, replied_to *model.TwIDType) (tweets []model.Tweet, err error) {
-	err = r.db.DB.Select(&tweets, "SELECT * FROM Tweet ORDER BY created_at")
+	err = r.db.DB.Select(&tweets, "SELECT * FROM Tweet WHERE TRUE=? OR replied_to=? ORDER BY created_at  LIMIT ?", replied_to == nil, replied_to, limit)
 	return tweets, err
 }
 func (r *MySQLTweetRepository) AddTweet(tweet model.Tweet) (ret model.Tweet, err error) {
