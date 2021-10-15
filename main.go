@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/a-omori-yumemi/YumetterAPI/db"
@@ -9,7 +8,8 @@ import (
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
-	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 )
 
@@ -30,19 +30,12 @@ func main() {
 		port = "8000"
 	}
 
-	conf := DBConfig{
+	conf := db.DBConfig{
 		Port:     os.Getenv("MYSQL_PORT"),
 		Host:     os.Getenv("MYSQL_HOST"),
 		User:     os.Getenv("MYSQL_USER"),
 		Password: os.Getenv("MYSQL_PASSWORD"),
 		Database: os.Getenv("MYSQL_DATABASE"),
-	}
-	dsn := conf.User + ":" + conf.Password + "@tcp(" + conf.Host + ":" + conf.Port + ")/" + conf.Database + "?parseTime=true&multiStatements=true"
-	fmt.Print(dsn)
-	db, err := sqlx.Open("mysql", dsn)
-	if err != nil {
-		log.Error(err)
-		return
 	}
 	repos, usecases := construct(conf)
 	handler.SetRoute(e, repos, usecases)
