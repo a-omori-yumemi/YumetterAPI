@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  web:
+    build: 
+      context: .
+      target: dev
+    restart: always
+    env_file:
+      - .env
+    ports:
+     - "5000:5000"
+    depends_on:
+      - db
+  db:
+    image: mysql:5.7
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - ./docker-db/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "3307:3306"
