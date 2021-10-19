@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Tweet (
     tw_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     usr_id INT NOT NULL,
     body VARCHAR(280) NOT NULL,
-    replied_to INT NULL,
+    replied_to BIGINT UNSIGNED NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_usr_id(usr_id, created_at DESC),
     INDEX idx_replied_to(replied_to, created_at DESC),
