@@ -36,15 +36,11 @@ func (r *MySQLTweetRepository) AddTweet(tweet model.Tweet) (ret model.Tweet, err
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		//INSERTには成功しているため、このエラーは握りつぶす（エラーを返したくない）
-		tweet.TwID = model.TwIDType(id)
-		return tweet, nil
+		return ret, err
 	}
 	ret, err = r.FindTweet(model.TwIDType(id))
 	if err != nil {
-		//INSERTには成功しているため、このエラーは握りつぶす（エラーを返したくない）
-		tweet.TwID = model.TwIDType(id)
-		return tweet, nil
+		return ret, err
 	}
 	return ret, nil
 }
