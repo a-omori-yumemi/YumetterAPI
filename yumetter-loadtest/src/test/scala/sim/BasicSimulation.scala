@@ -1,4 +1,4 @@
-package example
+package sim
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -104,8 +104,6 @@ class BasicItSimulation extends Simulation {
       exec(Tweet.tweet)
       .exec(WatchTL.watchFavReply)
     )
-
-  print(2)
 
   setUp(scn.inject(rampUsers(100).during(30.seconds)).protocols(httpProtocol))
 }
