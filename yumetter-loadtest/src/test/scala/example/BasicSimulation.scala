@@ -4,13 +4,53 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
 import scala.util.Random
+import scala.math.exp
 import java.util.Calendar
 
+
 object WatchTL {
-  val watchTL = repeat(Random.nextInt(3), "n")(
+  def calcBuzzIndex(twId: Int) = (0.01 + 0.99 * exp(twId % 500 / 50.0 - 10.0))
+  val watchTL = repeat(3, "n")(
     exec(
       http("TL").get("/tweets")
-    ).pause(Random.nextInt(3))
+    ).pause(3, 10)
+  )
+
+  val randomBin = Iterator.continually( Map( "randomBin" -> Random.nextInt(2)))
+
+  val watchFavReply = repeat(5)(
+    exec(
+      http("TL").get("/tweets").check(jsonPath("$[*].tweet").ofType[Map[String,Any]].findAll.saveAs("tweets"))
+    )
+    .foreach("${tweets}", "tweet") {
+      exec{session => 
+        val tweet = session("tweet").as[Map[String, Any]]
+        val buzzIndex = calcBuzzIndex(tweet("tw_id").asInstanceOf[Integer])
+        val doFav = Random.nextDouble() < buzzIndex
+        val doReply = Random.nextDouble() < buzzIndex/2
+        val doLookReply = Random.nextDouble() < buzzIndex/1.2
+        session.set("tw_id", tweet("tw_id")).set("doFav", doFav).set("doReply",doReply).set("doLookReply",doLookReply)
+      }
+      .doIf("${doFav}") {
+        exec(
+          http("Fav").put("/tweets/${tw_id}/favorites/${usr_id}")
+      )}
+      .doIf("${doLookReply}") {
+        exec(
+          http("Show Replies").get("/tweets?replied_to=${tw_id}")
+        )
+      }
+      .doIf("${doReply}") {
+        exec(
+          http("Reply").post("/tweets").formParamMap{session =>
+            Map(
+              "body" -> "reply",
+              "replied_to" -> session("tw_id").as[Int]
+            )
+          }
+        )
+      }
+    } 
   )
 }
 
@@ -36,13 +76,13 @@ object RegisterAndLogin {
   ).exec(
     addCookie(Cookie("SESSION", "${TOO_SECURE_SESSION}"))
   ).exec(
-    http("CheckMe").get("/users/me").check(jsonPath("$..usr_id").ofType[Int].saveAs("usr_id"))
+    http("CheckMe").get("/users/me").check(jsonPath("$.usr_id").ofType[Int].saveAs("usr_id"))
   )
 }
 
 object Tweet {
   val tweet = exec(
-    http("Tweet").post("/tweets").formParamMap(Map(
+    http("Tweet").post("/tweets").formParamMap(session=> Map(
       "body" -> ("Hello " + Random.alphanumeric.take(20).mkString)
     ))
   )
@@ -60,9 +100,9 @@ class BasicItSimulation extends Simulation {
   val scn = scenario("Basic scenario") // A scenario is a chain of requests and pauses
     .exec(WatchTL.watchTL)
     .exec(RegisterAndLogin.reg)
-    .repeat(Random.nextInt(5))(
+    .repeat(5)(
       exec(Tweet.tweet)
-      .exec(WatchTL.watchTL)
+      .exec(WatchTL.watchFavReply)
     )
 
   print(2)
