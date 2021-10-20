@@ -13,7 +13,7 @@ object WatchTL {
   val watchTL = repeat(3, "n")(
     exec(
       http("TL").get("/tweets")
-    ).pause(3, 10)
+    )
   )
 
   val randomBin = Iterator.continually( Map( "randomBin" -> Random.nextInt(2)))
@@ -49,7 +49,7 @@ object WatchTL {
             )
           }
         )
-      }
+      }.pause(0.2, 2)
     } 
   )
 }
@@ -98,12 +98,15 @@ class BasicSimulation extends Simulation {
     .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
   val scn = scenario("Basic scenario") // A scenario is a chain of requests and pauses
-    .exec(WatchTL.watchTL)
     .exec(RegisterAndLogin.reg)
-    .repeat(5)(
+    .repeat(100)(
       exec(Tweet.tweet)
       .exec(WatchTL.watchFavReply)
     )
 
-  setUp(scn.inject(rampUsers(100).during(30.seconds)).protocols(httpProtocol))
+  setUp(scn.inject(
+    incrementUsersPerSec(4)
+    .times(50)
+    .eachLevelLasting(10 seconds)
+    .startingFrom(1)).protocols(httpProtocol))
 }
