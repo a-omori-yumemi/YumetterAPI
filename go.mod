@@ -22,6 +22,8 @@ require (
 )
 
 require (
+	github.com/felixge/fgprof v0.9.1 // indirect
+	github.com/google/pprof v0.0.0-20200615235658-03e1cf38a040 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20210913180222-943fd674d43e // indirect
 	golang.org/x/text v0.3.7 // indirect

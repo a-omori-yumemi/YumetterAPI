@@ -88,7 +88,7 @@ object Tweet {
   )
 }
 
-class BasicItSimulation extends Simulation {
+class BasicSimulation extends Simulation {
 
   val httpProtocol = http
     .baseUrl(sys.env("YUMETTER_API") + "/v1") // Here is the root for all relative URLs
