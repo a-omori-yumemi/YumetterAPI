@@ -22,4 +22,4 @@ jobs:
         GITHUB_REF=${{ github.ref }} OWNER=${{ github.repository_owner }} IMAGE_ID=ghcr.io/${OWNER}/yumetter-api
         echo $IMAGE_ID
         docker tag yumetter-api $IMAGE_ID:${GITHUB_REF////-}-latest
-        docker push $IMAGE_ID:latest
+        docker push $IMAGE_ID:${GITHUB_REF////-}-latest
