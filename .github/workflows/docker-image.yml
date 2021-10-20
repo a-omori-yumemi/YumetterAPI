@@ -19,7 +19,7 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u a-omori-yumemi --password-stdin
     - name: Push image
       run: |
-        GITHUB_REF=${{ github.ref }} OWNER=${{ github.repository_owner }} IMAGE_ID=ghcr.io/${OWNER}/${GITHUB_REF////-}
+        GITHUB_REF=${{ github.ref }} OWNER=${{ github.repository_owner }} IMAGE_ID=ghcr.io/${OWNER}/yumetter-api
         echo $IMAGE_ID
-        docker tag yumetter-api $IMAGE_ID:latest
+        docker tag yumetter-api $IMAGE_ID:${GITHUB_REF////-}-latest
         docker push $IMAGE_ID:latest
