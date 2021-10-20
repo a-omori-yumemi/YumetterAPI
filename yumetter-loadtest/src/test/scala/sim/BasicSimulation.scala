@@ -105,8 +105,8 @@ object RegisterAndLogin {
     val password = "pass" + now.getTimeInMillis().toString()
     session.set("user_name", userName).set("password", password)
   }
-  .exec(User.register).exitHereIfFailed
-  .exec(User.login).exitHereIfFailed
+  .exec(User.register.exitHereIfFailed)
+  .exec(User.login.exitHereIfFailed)
   .exec( //localで試すときにsecure cookieだとめんどくさいから剥がす
     getCookieValue(CookieKey("SESSION").withSecure(true).saveAs("TOO_SECURE_SESSION"))
   ).exitHereIfFailed
@@ -136,8 +136,8 @@ class BasicSimulation extends Simulation {
     )
 
   setUp(scn.inject(
-    incrementUsersPerSec(4)
-    .times(10)
-    .eachLevelLasting(10 seconds)
+    incrementUsersPerSec(2)
+    .times(20)
+    .eachLevelLasting(15 seconds)
     .startingFrom(1)).protocols(httpProtocol))
 }
