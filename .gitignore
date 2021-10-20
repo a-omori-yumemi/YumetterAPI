@@ -15,3 +15,6 @@
 # vendor/
 
 YumetterAPI
+.ipynb_checkpoints
+
+.metals/
