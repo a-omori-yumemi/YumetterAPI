@@ -15,3 +15,5 @@
 # vendor/
 
 YumetterAPI
+yumetter-loadtest/
+.metals/
