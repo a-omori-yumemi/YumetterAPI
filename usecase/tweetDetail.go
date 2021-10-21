@@ -46,7 +46,6 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 	whereClause := ""
 	args := []interface{}{}
 	args = append(args, requestUserID)
-	args = append(args, limit)
 	if replied_to != nil {
 		whereClause = `WHERE replied_to=?`
 		args = append(args, replied_to)
@@ -58,8 +57,7 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 		 (SELECT count(1) FROM Tweet WHERE replied_to=T.tw_id) reply_count,
 		 (F.usr_id is not NULL) favorited,
 		 T.*
-		 FROM Tweet T LEFT OUTER JOIN 
-		 (SELECT * FROM Favorite WHERE usr_id=? ORDER BY tw_id DESC limit ?) F USING(tw_id)`+
+		 FROM Tweet T LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=?`+
 			whereClause+
 			` ORDER BY tw_id DESC limit ?`,
 		args...,
