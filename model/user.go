@@ -51,5 +51,5 @@ func (p Password) Validate() error {
 }
 
 func (p Password) Hash() (HashedPassword, error) {
-	return bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
+	return bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
 }

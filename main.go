@@ -53,11 +53,8 @@ func construct(conf db.DBConfig) (repository.Repositories, usecase.Usecases) {
 		UserRepo:  mysql.NewMySQLUserRepository(DB),
 	}
 	services := usecase.Usecases{
-		TweetService: usecase.NewTweetService(
-			repos.FavRepo,
-			repos.TweetRepo,
-			repos.UserRepo,
-		),
+		TweetDetailUsecase: usecase.NewTweetDetailQuerier(DB),
+		TweetDeleteUsecase: usecase.NewTweetDeleteUsecase(repos.TweetRepo),
 		Authenticator: usecase.NewJWTAuthenticator(
 			repos.UserRepo,
 			os.Getenv("SECRET_KEY"),
