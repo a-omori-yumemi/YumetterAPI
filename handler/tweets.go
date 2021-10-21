@@ -73,7 +73,7 @@ func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 	}
 }
 
-func GetTweets(tweetService usecase.ITweetService) echo.HandlerFunc {
+func GetTweets(tweetDetailUsecase usecase.ITweetDetailQuerier) echo.HandlerFunc {
 	const DefaultLimitValue = 30
 
 	GetParams := func(c echo.Context) (*model.UsrIDType, int, *model.TwIDType, error) {
@@ -99,7 +99,7 @@ func GetTweets(tweetService usecase.ITweetService) echo.HandlerFunc {
 			return err
 		}
 
-		tweet, err := tweetService.FindTweetDetails(usrID, limit, repliedTo)
+		tweet, err := tweetDetailUsecase.FindTweetDetails(usrID, limit, repliedTo)
 		if err != nil {
 			return err
 		}
@@ -108,7 +108,7 @@ func GetTweets(tweetService usecase.ITweetService) echo.HandlerFunc {
 	}
 }
 
-func DeleteTweet(tweetRepo usecase.ITweetService) echo.HandlerFunc {
+func DeleteTweet(tweetDeleteUsecase usecase.ITweetDeleteUsecase) echo.HandlerFunc {
 
 	GetParams := func(c echo.Context) (model.UsrIDType, model.TwIDType, error) {
 		var usrID model.UsrIDType
@@ -131,7 +131,7 @@ func DeleteTweet(tweetRepo usecase.ITweetService) echo.HandlerFunc {
 			return err
 		}
 
-		err = tweetRepo.DeleteTweetWithAuth(usrID, twID)
+		err = tweetDeleteUsecase.DeleteTweetWithAuth(usrID, twID)
 		if err == repository.ErrNotFound {
 			return echo.NewHTTPError(404, "tweet not found")
 		} else if err == usecase.ErrForbidden {

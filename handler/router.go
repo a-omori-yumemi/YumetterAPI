@@ -11,10 +11,10 @@ func SetRoute(e *echo.Echo, repos repository.Repositories, usecases usecase.Usec
 	g.Use(AuthUserMiddleware(usecases.Authenticator))
 
 	tweetsg := g.Group("/tweets")
-	tweetsg.GET("/:tw_id", GetTweet(usecases.TweetService))
-	tweetsg.DELETE("/:tw_id", DeleteTweet(usecases.TweetService))
-	tweetsg.GET("", GetTweets(usecases.TweetService))
-	tweetsg.POST("", PostTweet(usecases.TweetService))
+	tweetsg.GET("/:tw_id", GetTweet(repos.TweetRepo))
+	tweetsg.DELETE("/:tw_id", DeleteTweet(usecases.TweetDeleteUsecase))
+	tweetsg.GET("", GetTweets(usecases.TweetDetailUsecase))
+	tweetsg.POST("", PostTweet(repos.TweetRepo))
 
 	usersg := g.Group("/users")
 	usersg.GET("/:usr_id", GetUser(repos.UserRepo))
