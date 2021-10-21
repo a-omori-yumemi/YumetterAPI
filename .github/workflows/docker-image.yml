@@ -23,8 +23,9 @@ jobs:
         registry: ghcr.io
         username: a-omori-yumemi
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: $IMAGE_ID:${GITHUB_REF////-}-latest
+    - name: Push image
+      run: |
+        GITHUB_REF=${{ github.ref }} OWNER=${{ github.repository_owner }} IMAGE_ID=ghcr.io/${OWNER}/yumetter-api
+        echo $IMAGE_ID
+        docker tag yumetter-api $IMAGE_ID:${GITHUB_REF////-}-latest
+        docker push $IMAGE_ID:${GITHUB_REF////-}-latest
