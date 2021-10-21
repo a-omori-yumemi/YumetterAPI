@@ -24,7 +24,7 @@ jobs:
         username: a-omori-yumemi
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Push image
-      if: startsWith(${{ github.ref }}, 'refs/heads/')
+      if: startsWith(github.ref, 'refs/heads/')
       run: |
         docker tag yumetter-api $IMAGE_ID:${GITHUB_REF////-}-latest
         docker push $IMAGE_ID:${GITHUB_REF////-}-latest
