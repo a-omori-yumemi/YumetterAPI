@@ -10,6 +10,16 @@ type MySQLDB struct {
 	DB *sqlx.DB
 }
 
+type ReadOnlyDB interface {
+	Select(dest interface{}, query string, args ...interface{}) error
+	Get(dest interface{}, query string, args ...interface{}) error
+	NamedQuery(query string, arg interface{}) (*sqlx.Rows, error)
+}
+
+type MySQLReadOnlyDB struct {
+	DB ReadOnlyDB
+}
+
 type DBConfig struct {
 	Port     string
 	Host     string
@@ -28,4 +38,9 @@ func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 
 	// _, err = sqlx.LoadFile(db, "db/init.sql")
 	return MySQLDB{db}, err
+}
+
+func NewMySQLReadOnlyDB(conf DBConfig) (MySQLReadOnlyDB, error) {
+	db, err := NewMySQLDB(conf)
+	return MySQLReadOnlyDB{db.DB}, err
 }
