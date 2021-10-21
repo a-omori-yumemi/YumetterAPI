@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
+	"github.com/a-omori-yumemi/YumetterAPI/querier"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
 )
 
-func GetUser(userRepo repository.IUserRepository) echo.HandlerFunc {
+func GetUser(userQuerier querier.IUserQuerier) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		usrID, err := strconv.Atoi(c.Param("usr_id"))
@@ -19,7 +20,7 @@ func GetUser(userRepo repository.IUserRepository) echo.HandlerFunc {
 			return echo.NewHTTPError(400, err)
 		}
 
-		user, err := userRepo.FindUser(model.UsrIDType(usrID))
+		user, err := userQuerier.FindUser(model.UsrIDType(usrID))
 		if err != nil {
 			return err
 		}
@@ -63,7 +64,7 @@ func RegisterUser(userRepo repository.IUserRepository) echo.HandlerFunc {
 			return err
 		}
 		user, err = userRepo.AddUser(user)
-		if err == repository.ErrDuplicateKey {
+		if err == model.ErrDuplicateKey {
 			return echo.NewHTTPError(409, "the username has already taken")
 		} else if err != nil {
 			return err
@@ -111,7 +112,7 @@ func LoginUser(auth usecase.IAuthenticator) echo.HandlerFunc {
 	}
 }
 
-func GetMe(userRepo repository.IUserRepository) echo.HandlerFunc {
+func GetMe(userQuerier querier.IUserQuerier) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		usrID := GetSessionUserID(c)
@@ -119,8 +120,8 @@ func GetMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 			return echo.NewHTTPError(401)
 		}
 
-		user, err := userRepo.FindUser(model.UsrIDType(*usrID))
-		if err == repository.ErrNotFound {
+		user, err := userQuerier.FindUser(model.UsrIDType(*usrID))
+		if err == model.ErrNotFound {
 			return echo.NewHTTPError(500, "user not found")
 		} else if err != nil {
 			return err
@@ -139,7 +140,7 @@ func DeleteMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 		}
 
 		err := userRepo.DeleteUser(model.UsrIDType(*usrID))
-		if err == repository.ErrNotFound {
+		if err == model.ErrNotFound {
 			return echo.NewHTTPError(500, "user not found")
 		} else if err != nil {
 			return err
@@ -191,7 +192,7 @@ func PatchMe(userRepo repository.IUserRepository) echo.HandlerFunc {
 
 		if name != nil {
 			err = userRepo.UpdateName(usrID, *name)
-			if err == repository.ErrDuplicateKey {
+			if err == model.ErrDuplicateKey {
 				return echo.NewHTTPError(409, "the username has already taken")
 			} else if err != nil {
 				return err

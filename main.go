@@ -5,8 +5,10 @@ import (
 
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
+	"github.com/a-omori-yumemi/YumetterAPI/querier"
+	querier_mysql "github.com/a-omori-yumemi/YumetterAPI/querier/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
-	"github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
+	repo_mysql "github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -44,30 +46,39 @@ func main() {
 		Password: os.Getenv("MYSQL_PASSWORD"),
 		Database: os.Getenv("MYSQL_DATABASE"),
 	}
-	repos, usecases := construct(wconf, rconf)
-	handler.SetRoute(e, repos, usecases)
+	repos, usecases, queriers := construct(wconf, rconf)
+	handler.SetRoute(e, repos, usecases, queriers)
 	e.Logger.Fatal("failed to start server", e.Start(":"+port))
 }
 
-func construct(wconf db.DBConfig, rconf db.DBConfig) (repository.Repositories, usecase.Usecases) {
+func construct(wconf db.DBConfig, rconf db.DBConfig) (repository.Repositories, usecase.Usecases, querier.Queriers) {
 	DB, err := db.NewMySQLDB(wconf)
-	ReplicaDB, err := db.NewMySQLReadOnlyDB(rconf)
 	if err != nil {
 		log.Fatal("failed to connect DB ", err)
 	}
+	RODB, err := db.NewMySQLReadOnlyDB(rconf)
+	if err != nil {
+		log.Fatal("failed to connect ReadOnly DB ", err)
+	}
+
 	repos := repository.Repositories{
-		FavRepo:   mysql.NewMySQLFavoriteRepository(DB),
-		TweetRepo: mysql.NewMySQLTweetRepository(DB),
-		UserRepo:  mysql.NewMySQLUserRepository(DB),
+		FavRepo:   repo_mysql.NewMySQLFavoriteRepository(DB),
+		TweetRepo: repo_mysql.NewMySQLTweetRepository(DB),
+		UserRepo:  repo_mysql.NewMySQLUserRepository(DB),
 	}
 	services := usecase.Usecases{
-		TweetDetailUsecase: usecase.NewTweetDetailQuerier(DB),
 		TweetDeleteUsecase: usecase.NewTweetDeleteUsecase(repos.TweetRepo),
 		Authenticator: usecase.NewJWTAuthenticator(
 			repos.UserRepo,
 			os.Getenv("SECRET_KEY"),
 		),
 	}
+	queriers := querier.Queriers{
+		TweetDetailQuerier: querier_mysql.NewTweetDetailQuerier(RODB),
+		UserQuerier:        querier_mysql.NewMySQLUserQuerier(RODB),
+		FavQuerier:         querier_mysql.NewMySQLFavoriteQuerier(RODB),
+		TweetQuerier:       querier_mysql.NewMySQLTweetQuerier(RODB),
+	}
 
-	return repos, services
+	return repos, services, queriers
 }

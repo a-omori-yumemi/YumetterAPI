@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
+	"github.com/a-omori-yumemi/YumetterAPI/querier"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/labstack/echo/v4"
@@ -54,7 +55,7 @@ func PostTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 	}
 }
 
-func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
+func GetTweet(tweetQuerier querier.ITweetQuerier) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		twID, err := strconv.Atoi(c.Param("tw_id"))
@@ -62,8 +63,8 @@ func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 			return echo.NewHTTPError(400, err)
 		}
 
-		tweet, err := tweetRepo.FindTweet(model.TwIDType(twID))
-		if err == repository.ErrNotFound {
+		tweet, err := tweetQuerier.FindTweet(model.TwIDType(twID))
+		if err == model.ErrNotFound {
 			return echo.NewHTTPError(404, "tweet not found")
 		} else if err != nil {
 			return err
@@ -73,7 +74,7 @@ func GetTweet(tweetRepo repository.ITweetRepository) echo.HandlerFunc {
 	}
 }
 
-func GetTweets(tweetDetailUsecase usecase.ITweetDetailQuerier) echo.HandlerFunc {
+func GetTweets(tweetDetailUsecase querier.ITweetDetailQuerier) echo.HandlerFunc {
 	const DefaultLimitValue = 30
 
 	GetParams := func(c echo.Context) (*model.UsrIDType, int, *model.TwIDType, error) {
@@ -132,9 +133,9 @@ func DeleteTweet(tweetDeleteUsecase usecase.ITweetDeleteUsecase) echo.HandlerFun
 		}
 
 		err = tweetDeleteUsecase.DeleteTweetWithAuth(usrID, twID)
-		if err == repository.ErrNotFound {
+		if err == model.ErrNotFound {
 			return echo.NewHTTPError(404, "tweet not found")
-		} else if err == usecase.ErrForbidden {
+		} else if err == model.ErrForbidden {
 			return echo.NewHTTPError(403, "Only author can delete this tweet")
 		} else if err != nil {
 			return err

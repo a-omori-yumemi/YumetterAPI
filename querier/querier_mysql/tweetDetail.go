@@ -1,38 +1,23 @@
-package usecase
+package querier_mysql
 
 import (
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/model"
+	"github.com/a-omori-yumemi/YumetterAPI/querier"
 )
 
-type ITweetDetailQuerier interface {
-	FindTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]TweetDetail, error)
-}
-
-type TweetDetail struct {
-	UserName   model.UserName `db:"user_name" json:"user_name"`
-	Tweet      model.Tweet    `db:"tweetw" json:"tweet"`
-	FavCount   int            `json:"fav_count"`
-	ReplyCount int            `json:"reply_count"`
-	Favorited  bool           `json:"favorited"`
-}
-
-func (t TweetDetail) Validate() error {
-	return t.UserName.Validate()
-}
-
 type TweetDetailQuerier struct {
-	db db.MySQLDB
+	db db.MySQLReadOnlyDB
 }
 
-func NewTweetDetailQuerier(db db.MySQLDB) *TweetDetailQuerier {
+func NewTweetDetailQuerier(db db.MySQLReadOnlyDB) *TweetDetailQuerier {
 	return &TweetDetailQuerier{db: db}
 }
 
 func (u *TweetDetailQuerier) FindTweetDetails(
 	requestUserID *model.UsrIDType,
 	limit int,
-	replied_to *model.TwIDType) ([]TweetDetail, error) {
+	replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
 
 	type FlattenTweetDetail struct {
 		UserName model.UserName `db:"user_name"`
@@ -65,10 +50,10 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 		args...,
 	)
 
-	tweetDetails := make([]TweetDetail, 0, len(fTweetDetails))
+	tweetDetails := make([]querier.TweetDetail, 0, len(fTweetDetails))
 	for _, d := range fTweetDetails {
 		tweetDetails = append(tweetDetails,
-			TweetDetail{
+			querier.TweetDetail{
 				UserName:   d.UserName,
 				Tweet:      d.Tweet,
 				FavCount:   d.FavCount,

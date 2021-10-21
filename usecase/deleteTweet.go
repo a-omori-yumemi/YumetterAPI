@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"fmt"
-
 	"github.com/a-omori-yumemi/YumetterAPI/model"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 )
@@ -19,8 +17,6 @@ func NewTweetDeleteUsecase(repo repository.ITweetRepository) *TweetDeleteUsecase
 	return &TweetDeleteUsecase{repo: repo}
 }
 
-var ErrForbidden error = fmt.Errorf("forbidden operation")
-
 func (u *TweetDeleteUsecase) DeleteTweetWithAuth(requestUserID model.UsrIDType, twID model.TwIDType) error {
 	tw, err := u.repo.FindTweet(twID)
 	if err != nil {
@@ -28,7 +24,7 @@ func (u *TweetDeleteUsecase) DeleteTweetWithAuth(requestUserID model.UsrIDType, 
 	}
 
 	if tw.UsrID != requestUserID {
-		return ErrForbidden
+		return model.ErrForbidden
 	}
 
 	err = u.repo.DeleteTweet(twID)
