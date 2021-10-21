@@ -53,11 +53,13 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 	args = append(args, limit)
 
 	err := u.db.DB.Select(&fTweetDetails,
-		`SELECT (SELECT count(1) FROM Favorite WHERE tw_id=T.tw_id) fav_count,
+		`SELECT 
+		 U.name user_name,
+		 (SELECT count(1) FROM Favorite WHERE tw_id=T.tw_id) fav_count,
 		 (SELECT count(1) FROM Tweet WHERE replied_to=T.tw_id) reply_count,
 		 (F.usr_id is not NULL) favorited,
 		 T.*
-		 FROM Tweet T LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=?`+
+		 FROM Tweet T JOIN User U USING(usr_id) LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=?`+
 			whereClause+
 			` ORDER BY tw_id DESC limit ?`,
 		args...,
