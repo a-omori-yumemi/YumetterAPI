@@ -15,5 +15,10 @@
 # vendor/
 
 YumetterAPI
-yumetter-loadtest/
+.ipynb_checkpoints
+
 .metals/
+.bloop
+.bsp
+yumetter-loadtest/project/
+yumetter-loadtest/target/

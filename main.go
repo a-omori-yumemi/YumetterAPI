@@ -1,12 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"time"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
+	"github.com/a-omori-yumemi/YumetterAPI/db"
+	"github.com/a-omori-yumemi/YumetterAPI/handler"
+	"github.com/a-omori-yumemi/YumetterAPI/repository"
+	"github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
+	"github.com/a-omori-yumemi/YumetterAPI/usecase"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 )
 
@@ -19,46 +22,47 @@ type DBConfig struct {
 }
 
 func main() {
-	conf := DBConfig{
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Pre(middleware.RemoveTrailingSlash())
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
+	conf := db.DBConfig{
 		Port:     os.Getenv("MYSQL_PORT"),
 		Host:     os.Getenv("MYSQL_HOST"),
 		User:     os.Getenv("MYSQL_USER"),
 		Password: os.Getenv("MYSQL_PASSWORD"),
 		Database: os.Getenv("MYSQL_DATABASE"),
 	}
-	dsn := conf.User + ":" + conf.Password + "@tcp(" + conf.Host + ":" + conf.Port + ")/" + conf.Database + "?parseTime=true&multiStatements=true"
-	fmt.Print(dsn)
-	db, err := sqlx.Open("mysql", dsn)
+	repos, usecases := construct(conf)
+	handler.SetRoute(e, repos, usecases)
+	e.Logger.Fatal("failed to start server", e.Start(":"+port))
+}
+
+func construct(conf db.DBConfig) (repository.Repositories, usecase.Usecases) {
+	DB, err := db.NewMySQLDB(conf)
 	if err != nil {
-		log.Error(err)
-		return
+		log.Fatal("failed to connect DB ", err)
+	}
+	repos := repository.Repositories{
+		FavRepo:   mysql.NewMySQLFavoriteRepository(DB),
+		TweetRepo: mysql.NewMySQLTweetRepository(DB),
+		UserRepo:  mysql.NewMySQLUserRepository(DB),
+	}
+	services := usecase.Usecases{
+		TweetService: usecase.NewTweetService(
+			repos.FavRepo,
+			repos.TweetRepo,
+			repos.UserRepo,
+		),
+		Authenticator: usecase.NewJWTAuthenticator(
+			repos.UserRepo,
+			os.Getenv("SECRET_KEY"),
+		),
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS TEST (id INT PRIMARY KEY, text VARCHAR(100))")
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	id := time.Now().UnixMicro() % 10000000
-	_, err = db.Exec("INSERT INTO TEST (id, text) values (?, 'help!')", id)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	rows := []struct {
-		Id   int32  `db:"id"`
-		Text string `db:"text"`
-	}{}
-	err = db.Select(&rows, "SELECT * FROM TEST")
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	for _, row := range rows {
-		log.Print(row.Id, row.Text)
-	}
-	time.Sleep(10)
-	fmt.Println("Hello Docker")
+	return repos, services
 }

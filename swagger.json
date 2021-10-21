@@ -116,7 +116,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Tweet"
+                        }
                     },
                     "400": {
                         "description": "Bad Request (body is too short or the tweet you replied to is missing)",
@@ -434,7 +437,7 @@
                     "$ref": "#/definitions/tw_id",
                     "description": "リプライ先（ある場合）"
                 },
-                "creted_at": {
+                "created_at": {
                     "type": "string",
                     "format": "date"
                 }
