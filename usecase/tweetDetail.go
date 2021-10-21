@@ -59,7 +59,7 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 		 (SELECT count(1) FROM Tweet WHERE replied_to=T.tw_id) reply_count,
 		 (F.usr_id is not NULL) favorited,
 		 T.*
-		 FROM Tweet T JOIN User U USING(usr_id) LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=?`+
+		 FROM Tweet T JOIN User U USING(usr_id) LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=? `+
 			whereClause+
 			` ORDER BY tw_id DESC limit ?`,
 		args...,
