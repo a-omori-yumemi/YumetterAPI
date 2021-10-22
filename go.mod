@@ -25,6 +25,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/pprof v0.0.0-20200615235658-03e1cf38a040 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20210913180222-943fd674d43e // indirect
 	golang.org/x/text v0.3.7 // indirect

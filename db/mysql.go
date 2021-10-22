@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/gommon/log"
+	"github.com/pkg/errors"
 )
 
 type MySQLDB struct {
@@ -47,15 +48,15 @@ func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 
 	maxOpenConns, err := strconv.Atoi(conf.MaxOpenConns)
 	if err != nil {
-		return MySQLDB{}, err
+		return MySQLDB{}, errors.Wrap(err, "failed to parse MAX_OPEN_CONNS")
 	}
 	maxIdleConns, err := strconv.Atoi(conf.MaxIdleConns)
 	if err != nil {
-		return MySQLDB{}, err
+		return MySQLDB{}, errors.Wrap(err, "failed to parse MAX_IDLE_CONNS")
 	}
 	connMaxIdletime, err := strconv.Atoi(conf.ConnMaxIdletime)
 	if err != nil {
-		return MySQLDB{}, err
+		return MySQLDB{}, errors.Wrap(err, "failed to parse MAX_IDLE_TIME")
 	}
 	db.SetMaxOpenConns(maxOpenConns)
 	db.SetMaxIdleConns(maxIdleConns)
