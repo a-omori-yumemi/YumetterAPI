@@ -66,19 +66,19 @@ func construct(wconf db.DBConfig, rconf db.DBConfig) (repository.Repositories, u
 		TweetRepo: repo_mysql.NewMySQLTweetRepository(DB),
 		UserRepo:  repo_mysql.NewMySQLUserRepository(DB),
 	}
+	services := usecase.Usecases{
+		TweetDeleteUsecase: usecase.NewTweetDeleteUsecase(repos.TweetRepo),
+		Authenticator: usecase.NewJWTAuthenticator(
+			repos.UserRepo,
+			os.Getenv("SECRET_KEY"),
+		),
+	}
 	queriers := querier.Queriers{
 		TweetDetailQuerier: querier_mysql.NewTweetDetailQuerier(RODB),
 		UserQuerier:        querier_mysql.NewMySQLUserQuerier(RODB),
 		FavQuerier:         querier_mysql.NewMySQLFavoriteQuerier(RODB),
 		TweetQuerier:       querier_mysql.NewMySQLTweetQuerier(RODB),
 	}
-	usecases := usecase.Usecases{
-		TweetDeleteUsecase: usecase.NewTweetDeleteUsecase(repos.TweetRepo),
-		Authenticator: usecase.NewJWTAuthenticator(
-			queriers.UserQuerier,
-			os.Getenv("SECRET_KEY"),
-		),
-	}
 
-	return repos, usecases, queriers
+	return repos, services, queriers
 }

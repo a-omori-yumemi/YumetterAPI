@@ -5,15 +5,15 @@ import (
 	"time"
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
-	"github.com/a-omori-yumemi/YumetterAPI/querier"
+	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type JWTAuthenticator struct {
 	IAuthenticator
-	userQuerier querier.IUserQuerier
-	secretKey   string
+	userRepo  repository.IUserRepository
+	secretKey string
 }
 
 type Claim struct {
@@ -21,12 +21,12 @@ type Claim struct {
 	UsrID model.UsrIDType
 }
 
-func NewJWTAuthenticator(userQuerier querier.IUserQuerier, secretKey string) *JWTAuthenticator {
-	return &JWTAuthenticator{userQuerier: userQuerier, secretKey: secretKey}
+func NewJWTAuthenticator(userRepo repository.IUserRepository, secretKey string) *JWTAuthenticator {
+	return &JWTAuthenticator{userRepo: userRepo, secretKey: secretKey}
 }
 
 func (a *JWTAuthenticator) Login(name model.UserName, password model.Password) (string, error) {
-	user, err := a.userQuerier.FindUserByName(name)
+	user, err := a.userRepo.FindUserByName(name)
 	if err != nil {
 		return "", err
 	}
