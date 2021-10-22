@@ -1,6 +1,8 @@
 package db
 
 import (
+	"strconv"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/gommon/log"
@@ -21,11 +23,13 @@ type MySQLReadOnlyDB struct {
 }
 
 type DBConfig struct {
-	Port     string
-	Host     string
-	Password string
-	Database string
-	User     string
+	Port         string
+	Host         string
+	Password     string
+	Database     string
+	User         string
+	MaxOpenConns string
+	MaxIdleConns string
 }
 
 func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
@@ -35,6 +39,17 @@ func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 	if err != nil {
 		return MySQLDB{}, err
 	}
+
+	maxOpenConns, err := strconv.Atoi(conf.MaxOpenConns)
+	if err != nil {
+		return MySQLDB{}, err
+	}
+	maxIdleConns, err := strconv.Atoi(conf.MaxIdleConns)
+	if err != nil {
+		return MySQLDB{}, err
+	}
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
 
 	// _, err = sqlx.LoadFile(db, "db/init.sql")
 	return MySQLDB{db}, err
