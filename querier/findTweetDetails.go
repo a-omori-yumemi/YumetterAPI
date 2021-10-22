@@ -4,7 +4,7 @@ import (
 	"github.com/a-omori-yumemi/YumetterAPI/model"
 )
 
-type ITweetDetailQuerier interface {
+type IFindTweetDetailsQuerier interface {
 	FindTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]TweetDetail, error)
 }
 

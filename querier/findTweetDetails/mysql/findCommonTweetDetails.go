@@ -1,4 +1,4 @@
-package querier_mysql
+package querier_tweet_detail_mysql
 
 import (
 	"github.com/a-omori-yumemi/YumetterAPI/db"
@@ -6,27 +6,26 @@ import (
 	"github.com/a-omori-yumemi/YumetterAPI/querier"
 )
 
-type TweetDetailQuerier struct {
+type CommonTweetDetailQuerier struct {
 	db db.MySQLReadOnlyDB
 }
 
-func NewTweetDetailQuerier(db db.MySQLReadOnlyDB) *TweetDetailQuerier {
-	return &TweetDetailQuerier{db: db}
+func NewCommonTweetDetailQuerier(db db.MySQLReadOnlyDB) *CommonTweetDetailQuerier {
+	return &CommonTweetDetailQuerier{db: db}
 }
 
-func (u *TweetDetailQuerier) FindTweetDetails(
+func (u *CommonTweetDetailQuerier) FindCommonTweetDetails(
 	requestUserID *model.UsrIDType,
 	limit int,
 	replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
 
-	type FlattenTweetDetail struct {
+	type FlattenCommonTweetDetail struct {
 		UserName model.UserName `db:"user_name"`
 		model.Tweet
-		FavCount   int  `db:"fav_count"`
-		ReplyCount int  `db:"reply_count"`
-		Favorited  bool `db:"favorited"`
+		FavCount   int `db:"fav_count"`
+		ReplyCount int `db:"reply_count"`
 	}
-	fTweetDetails := make([]FlattenTweetDetail, 0, limit)
+	fTweetDetails := make([]FlattenCommonTweetDetail, 0, limit)
 
 	whereClause := ""
 	args := []interface{}{}
@@ -42,9 +41,8 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 		 U.name user_name,
 		 (SELECT count(1) FROM Favorite WHERE tw_id=T.tw_id) fav_count,
 		 (SELECT count(1) FROM Tweet WHERE replied_to=T.tw_id) reply_count,
-		 (F.usr_id is not NULL) favorited,
 		 T.*
-		 FROM Tweet T JOIN User U USING(usr_id) LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=? `+
+		 FROM Tweet T JOIN User U USING(usr_id) `+
 			whereClause+
 			` ORDER BY tw_id DESC limit ?`,
 		args...,
@@ -58,7 +56,6 @@ func (u *TweetDetailQuerier) FindTweetDetails(
 				Tweet:      d.Tweet,
 				FavCount:   d.FavCount,
 				ReplyCount: d.ReplyCount,
-				Favorited:  d.Favorited,
 			})
 	}
 	return tweetDetails, err

@@ -9,7 +9,6 @@ import (
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
 	"github.com/a-omori-yumemi/YumetterAPI/querier"
-	querier_mysql "github.com/a-omori-yumemi/YumetterAPI/querier/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	repo_mysql "github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"

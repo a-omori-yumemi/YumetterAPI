@@ -1,7 +1,7 @@
 package querier
 
 type Queriers struct {
-	TweetDetailQuerier ITweetDetailQuerier
+	TweetDetailQuerier IFindTweetDetailsQuerier
 	TweetQuerier       ITweetQuerier
 	UserQuerier        IUserQuerier
 	FavQuerier         IFavoriteQuerier
