@@ -16,7 +16,6 @@ func NewCommonTweetDetailQuerier(db db.MySQLReadOnlyDB) *CommonTweetDetailsQueri
 }
 
 func (u *CommonTweetDetailsQuerier) FindCommonTweetDetails(
-	requestUserID *model.UsrIDType,
 	limit int,
 	replied_to *model.TwIDType) ([]querier_tweet_detail.CommonTweetDetail, error) {
 
@@ -30,7 +29,6 @@ func (u *CommonTweetDetailsQuerier) FindCommonTweetDetails(
 
 	whereClause := ""
 	args := []interface{}{}
-	args = append(args, requestUserID)
 	if replied_to != nil {
 		whereClause = `WHERE replied_to=?`
 		args = append(args, replied_to)

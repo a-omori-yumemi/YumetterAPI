@@ -8,7 +8,7 @@ import (
 )
 
 type ICommonTweetDetailsQuerier interface {
-	FindCommonTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]CommonTweetDetail, error)
+	FindCommonTweetDetails(limit int, replied_to *model.TwIDType) ([]CommonTweetDetail, error)
 }
 
 type CommonTweetDetail struct {
@@ -74,7 +74,7 @@ func FirstTwID(ds []CommonTweetDetail) (model.TwIDType, error) {
 }
 
 func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
-	commonTweetDetails, err := q.commonTweetDetailQuerier.FindCommonTweetDetails(requestUserID, limit, replied_to)
+	commonTweetDetails, err := q.commonTweetDetailQuerier.FindCommonTweetDetails(limit, replied_to)
 	if err != nil {
 		return []querier.TweetDetail{}, err
 	}
@@ -97,7 +97,7 @@ func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, l
 	}
 
 	favIdx := 0
-	ret := make([]querier.TweetDetail, len(commonTweetDetails))
+	ret := make([]querier.TweetDetail, 0, len(commonTweetDetails))
 	for _, ctd := range commonTweetDetails {
 		cur := querier.TweetDetail{
 			Tweet:      ctd.Tweet,
