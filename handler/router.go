@@ -21,7 +21,7 @@ func SetRoute(e *echo.Echo, repos repository.Repositories, usecases usecase.Usec
 	usersg.GET("/:usr_id", GetUser(queriers.UserQuerier))
 	usersg.POST("", RegisterUser(repos.UserRepo))
 	usersg.POST("/login", LoginUser(usecases.Authenticator))
-	usersg.GET("/me", GetMe(queriers.UserQuerier))
+	usersg.GET("/me", GetMe(repos.UserRepo))
 	usersg.DELETE("/me", DeleteMe(repos.UserRepo))
 	usersg.PATCH("/me", PatchMe(repos.UserRepo))
 

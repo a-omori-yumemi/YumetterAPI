@@ -112,7 +112,7 @@ func LoginUser(auth usecase.IAuthenticator) echo.HandlerFunc {
 	}
 }
 
-func GetMe(userQuerier querier.IUserQuerier) echo.HandlerFunc {
+func GetMe(userQuerier repository.IUserRepository) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		usrID := GetSessionUserID(c)
