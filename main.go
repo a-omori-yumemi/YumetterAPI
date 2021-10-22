@@ -3,6 +3,9 @@ package main
 import (
 	"os"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
 	"github.com/a-omori-yumemi/YumetterAPI/querier"
@@ -10,6 +13,7 @@ import (
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	repo_mysql "github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
+	"github.com/felixge/fgprof"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -24,6 +28,11 @@ type DBConfig struct {
 }
 
 func main() {
+	http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler())
+	go func() {
+		log.Print(http.ListenAndServe(":6060", nil))
+	}()
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Pre(middleware.RemoveTrailingSlash())
