@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/a-omori-yumemi/YumetterAPI/model"
+	"github.com/a-omori-yumemi/YumetterAPI/querier"
 	"github.com/a-omori-yumemi/YumetterAPI/repository"
 	"github.com/labstack/echo/v4"
 )
@@ -57,7 +58,7 @@ func DELETEFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
 	}
 }
 
-func GETFavorites(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
+func GETFavorites(favQuerier querier.IFavoriteQuerier) echo.HandlerFunc {
 	GetParams := func(c echo.Context) (twID model.TwIDType, err error) {
 		if twIDTmp, err := strconv.Atoi(c.Param("tw_id")); err != nil {
 			return twID, echo.NewHTTPError(400, err)
@@ -73,7 +74,7 @@ func GETFavorites(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
 			return err
 		}
 
-		favs, err := favRepo.FindFavorites(twID)
+		favs, err := favQuerier.FindFavorites(twID)
 		if err != nil {
 			return err
 		}
