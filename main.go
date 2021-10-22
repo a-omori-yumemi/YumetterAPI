@@ -49,7 +49,7 @@ func main() {
 		Database:        os.Getenv("MYSQL_DATABASE"),
 		MaxOpenConns:    os.Getenv("MYSQL_WRITE_MAX_OPEN_CONNS"),
 		MaxIdleConns:    os.Getenv("MYSQL_WRITE_MAX_IDLE_CONNS"),
-		ConnMaxLifetime: os.Getenv("MYSQL_WRITE_CONN_MAX_LIFE_TIME"),
+		ConnMaxIdletime: os.Getenv("MYSQL_WRITE_CONN_MAX_IDLE_TIME"),
 	}
 	rconf := db.DBConfig{
 		Port:            os.Getenv("MYSQL_PORT"),
@@ -59,7 +59,7 @@ func main() {
 		Database:        os.Getenv("MYSQL_DATABASE"),
 		MaxOpenConns:    os.Getenv("MYSQL_READ_MAX_OPEN_CONNS"),
 		MaxIdleConns:    os.Getenv("MYSQL_READ_MAX_IDLE_CONNS"),
-		ConnMaxLifetime: os.Getenv("MYSQL_READ_CONN_MAX_LIFE_TIME"),
+		ConnMaxIdletime: os.Getenv("MYSQL_READ_CONN_MAX_IDLE_TIME"),
 	}
 	repos, usecases, queriers := construct(wconf, rconf)
 	handler.SetRoute(e, repos, usecases, queriers)

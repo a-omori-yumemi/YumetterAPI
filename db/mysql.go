@@ -31,7 +31,7 @@ type DBConfig struct {
 	User            string
 	MaxOpenConns    string
 	MaxIdleConns    string
-	ConnMaxLifetime string
+	ConnMaxIdletime string
 }
 
 func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
@@ -50,13 +50,13 @@ func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 	if err != nil {
 		return MySQLDB{}, err
 	}
-	connMaxLifetime, err := strconv.Atoi(conf.ConnMaxLifetime)
+	connMaxIdletime, err := strconv.Atoi(conf.ConnMaxIdletime)
 	if err != nil {
 		return MySQLDB{}, err
 	}
 	db.SetMaxOpenConns(maxOpenConns)
 	db.SetMaxIdleConns(maxIdleConns)
-	db.SetConnMaxLifetime(time.Second * time.Duration(connMaxLifetime))
+	db.SetConnMaxIdleTime(time.Second * time.Duration(connMaxIdletime))
 
 	// _, err = sqlx.LoadFile(db, "db/init.sql")
 	return MySQLDB{db}, err
