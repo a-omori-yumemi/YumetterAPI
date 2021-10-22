@@ -76,9 +76,19 @@ func FirstTwID(ds []CommonTweetDetail, limit int) (model.TwIDType, error) {
 }
 
 func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
-	commonTweetDetails, ok := q.dataSource.Get().([]CommonTweetDetail)
-	if !ok {
-		return []querier.TweetDetail{}, fmt.Errorf("failed to get TimeLine")
+	var commonTweetDetails []CommonTweetDetail
+	if replied_to == nil {
+		var ok bool
+		commonTweetDetails, ok = q.dataSource.Get().([]CommonTweetDetail)
+		if !ok {
+			return []querier.TweetDetail{}, fmt.Errorf("failed to get TimeLine")
+		}
+	} else {
+		var err error
+		commonTweetDetails, err = q.commonTweetDetailQuerier.FindCommonTweetDetails(limit, replied_to)
+		if err != nil {
+			return []querier.TweetDetail{}, err
+		}
 	}
 
 	if limit > len(commonTweetDetails) {
