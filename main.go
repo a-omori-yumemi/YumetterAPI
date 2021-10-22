@@ -42,22 +42,24 @@ func main() {
 	}
 
 	wconf := db.DBConfig{
-		Port:         os.Getenv("MYSQL_PORT"),
-		Host:         os.Getenv("MYSQL_WRITE_HOST"),
-		User:         os.Getenv("MYSQL_USER"),
-		Password:     os.Getenv("MYSQL_PASSWORD"),
-		Database:     os.Getenv("MYSQL_DATABASE"),
-		MaxOpenConns: os.Getenv("MYSQL_WRITE_MAX_OPEN_CONNS"),
-		MaxIdleConns: os.Getenv("MYSQL_WRITE_MAX_IDLE_CONNS"),
+		Port:            os.Getenv("MYSQL_PORT"),
+		Host:            os.Getenv("MYSQL_WRITE_HOST"),
+		User:            os.Getenv("MYSQL_USER"),
+		Password:        os.Getenv("MYSQL_PASSWORD"),
+		Database:        os.Getenv("MYSQL_DATABASE"),
+		MaxOpenConns:    os.Getenv("MYSQL_WRITE_MAX_OPEN_CONNS"),
+		MaxIdleConns:    os.Getenv("MYSQL_WRITE_MAX_IDLE_CONNS"),
+		ConnMaxLifetime: os.Getenv("MYSQL_WRITE_CONN_MAX_LIFE_TIME"),
 	}
 	rconf := db.DBConfig{
-		Port:         os.Getenv("MYSQL_PORT"),
-		Host:         os.Getenv("MYSQL_READ_HOST"),
-		User:         os.Getenv("MYSQL_USER"),
-		Password:     os.Getenv("MYSQL_PASSWORD"),
-		Database:     os.Getenv("MYSQL_DATABASE"),
-		MaxOpenConns: os.Getenv("MYSQL_READ_MAX_OPEN_CONNS"),
-		MaxIdleConns: os.Getenv("MYSQL_READ_MAX_IDLE_CONNS"),
+		Port:            os.Getenv("MYSQL_PORT"),
+		Host:            os.Getenv("MYSQL_READ_HOST"),
+		User:            os.Getenv("MYSQL_USER"),
+		Password:        os.Getenv("MYSQL_PASSWORD"),
+		Database:        os.Getenv("MYSQL_DATABASE"),
+		MaxOpenConns:    os.Getenv("MYSQL_READ_MAX_OPEN_CONNS"),
+		MaxIdleConns:    os.Getenv("MYSQL_READ_MAX_IDLE_CONNS"),
+		ConnMaxLifetime: os.Getenv("MYSQL_READ_CONN_MAX_LIFE_TIME"),
 	}
 	repos, usecases, queriers := construct(wconf, rconf)
 	handler.SetRoute(e, repos, usecases, queriers)
