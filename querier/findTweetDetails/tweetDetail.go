@@ -94,6 +94,9 @@ func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, l
 	if limit > len(commonTweetDetails) {
 		limit = len(commonTweetDetails)
 	}
+	if limit == 0 {
+		return []querier.TweetDetail{}, nil
+	}
 
 	lastID, err := LastTwID(commonTweetDetails)
 	if err != nil {
