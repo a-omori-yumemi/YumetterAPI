@@ -22,3 +22,4 @@ YumetterAPI
 .bsp
 yumetter-loadtest/project/
 yumetter-loadtest/target/
+wire_gen.go

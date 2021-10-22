@@ -34,6 +34,15 @@ type CacheStore interface {
 	Get() interface{}
 }
 
+type MemCacheStore struct {
+	CacheStore
+	cache string
+}
+
+func NewCacheStore() *MemCacheStore {
+	return &MemCacheStore{cache: ""}
+}
+
 func NewTweetDetailQuerier(
 	commonTweetDetailQuerier ICommonTweetDetailsQuerier,
 	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier,

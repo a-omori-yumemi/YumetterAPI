@@ -34,6 +34,9 @@ type DBConfig struct {
 	ConnMaxIdletime string
 }
 
+//wireのために
+type RODBConfig DBConfig
+
 func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 	dsn := conf.User + ":" + conf.Password + "@tcp(" + conf.Host + ":" + conf.Port + ")/" + conf.Database + "?parseTime=true&multiStatements=true"
 	log.Info(dsn)
@@ -62,7 +65,7 @@ func NewMySQLDB(conf DBConfig) (MySQLDB, error) {
 	return MySQLDB{db}, err
 }
 
-func NewMySQLReadOnlyDB(conf DBConfig) (MySQLReadOnlyDB, error) {
-	db, err := NewMySQLDB(conf)
+func NewMySQLReadOnlyDB(conf RODBConfig) (MySQLReadOnlyDB, error) {
+	db, err := NewMySQLDB(DBConfig(conf))
 	return MySQLReadOnlyDB{db.DB}, err
 }

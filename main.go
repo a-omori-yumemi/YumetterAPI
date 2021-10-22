@@ -8,9 +8,6 @@ import (
 
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
-	"github.com/a-omori-yumemi/YumetterAPI/querier"
-	"github.com/a-omori-yumemi/YumetterAPI/repository"
-	repo_mysql "github.com/a-omori-yumemi/YumetterAPI/repository/mysql"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/felixge/fgprof"
 	"github.com/labstack/echo/v4"
@@ -40,17 +37,16 @@ func main() {
 		port = "8000"
 	}
 
-	wconf := db.DBConfig{
-		Port:            os.Getenv("MYSQL_PORT"),
-		Host:            os.Getenv("MYSQL_WRITE_HOST"),
-		User:            os.Getenv("MYSQL_USER"),
-		Password:        os.Getenv("MYSQL_PASSWORD"),
-		Database:        os.Getenv("MYSQL_DATABASE"),
-		MaxOpenConns:    os.Getenv("MYSQL_WRITE_MAX_OPEN_CONNS"),
-		MaxIdleConns:    os.Getenv("MYSQL_WRITE_MAX_IDLE_CONNS"),
-		ConnMaxIdletime: os.Getenv("MYSQL_WRITE_CONN_MAX_IDLE_TIME"),
+	handlers, err := buildHandlers()
+	if err != nil {
+		log.Fatal(err)
 	}
-	rconf := db.DBConfig{
+	SetRoute(e, handlers)
+	e.Logger.Fatal("failed to start server", e.Start(":"+port))
+}
+
+func ProvideRODBConfig() db.RODBConfig {
+	return db.RODBConfig{
 		Port:            os.Getenv("MYSQL_PORT"),
 		Host:            os.Getenv("MYSQL_READ_HOST"),
 		User:            os.Getenv("MYSQL_USER"),
@@ -60,39 +56,42 @@ func main() {
 		MaxIdleConns:    os.Getenv("MYSQL_READ_MAX_IDLE_CONNS"),
 		ConnMaxIdletime: os.Getenv("MYSQL_READ_CONN_MAX_IDLE_TIME"),
 	}
-	repos, usecases, queriers := construct(wconf, rconf)
-	handler.SetRoute(e, repos, usecases, queriers)
-	e.Logger.Fatal("failed to start server", e.Start(":"+port))
 }
+func ProvideDBConfig() db.DBConfig {
+	return db.DBConfig{
+		Port:            os.Getenv("MYSQL_PORT"),
+		Host:            os.Getenv("MYSQL_WRITE_HOST"),
+		User:            os.Getenv("MYSQL_USER"),
+		Password:        os.Getenv("MYSQL_PASSWORD"),
+		Database:        os.Getenv("MYSQL_DATABASE"),
+		MaxOpenConns:    os.Getenv("MYSQL_WRITE_MAX_OPEN_CONNS"),
+		MaxIdleConns:    os.Getenv("MYSQL_WRITE_MAX_IDLE_CONNS"),
+		ConnMaxIdletime: os.Getenv("MYSQL_WRITE_CONN_MAX_IDLE_TIME"),
+	}
+}
+func ProvideSecretKey() usecase.SecretKey {
+	return usecase.SecretKey(os.Getenv("SECRET_KEY"))
+}
+func SetRoute(e *echo.Echo, h handler.Handlers) {
+	g := e.Group("/v1")
+	g.Use(h.AuthUserMiddleware.Handle)
 
-func construct(wconf db.DBConfig, rconf db.DBConfig) (repository.Repositories, usecase.Usecases, querier.Queriers) {
-	DB, err := db.NewMySQLDB(wconf)
-	if err != nil {
-		log.Fatal("failed to connect DB ", err)
-	}
-	RODB, err := db.NewMySQLReadOnlyDB(rconf)
-	if err != nil {
-		log.Fatal("failed to connect ReadOnly DB ", err)
-	}
+	tweetsg := g.Group("/tweets")
+	tweetsg.GET("/:tw_id", h.GetTweet.Handle)
+	tweetsg.DELETE("/:tw_id", h.DeleteTweet.Handle)
+	tweetsg.GET("", h.GetTweets.Handle)
+	tweetsg.POST("", h.PostTweet.Handle)
 
-	repos := repository.Repositories{
-		FavRepo:   repo_mysql.NewMySQLFavoriteRepository(DB),
-		TweetRepo: repo_mysql.NewMySQLTweetRepository(DB),
-		UserRepo:  repo_mysql.NewMySQLUserRepository(DB),
-	}
-	services := usecase.Usecases{
-		TweetDeleteUsecase: usecase.NewTweetDeleteUsecase(repos.TweetRepo),
-		Authenticator: usecase.NewJWTAuthenticator(
-			repos.UserRepo,
-			os.Getenv("SECRET_KEY"),
-		),
-	}
-	queriers := querier.Queriers{
-		TweetDetailQuerier: querier_mysql.NewTweetDetailQuerier(RODB),
-		UserQuerier:        querier_mysql.NewMySQLUserQuerier(RODB),
-		FavQuerier:         querier_mysql.NewMySQLFavoriteQuerier(RODB),
-		TweetQuerier:       querier_mysql.NewMySQLTweetQuerier(RODB),
-	}
+	usersg := g.Group("/users")
+	usersg.GET("/:usr_id", h.GetUser.Handle)
+	usersg.POST("", h.RegisterUser.Handle)
+	usersg.POST("/login", h.LoginUser.Handle)
+	usersg.GET("/me", h.GetMe.Handle)
+	usersg.DELETE("/me", h.DeleteMe.Handle)
+	usersg.PATCH("/me", h.PatchMe.Handle)
 
-	return repos, services, queriers
+	favoritesg := tweetsg.Group("/:tw_id/favorites")
+	favoritesg.GET("", h.GetFavorites.Handle)
+	favoritesg.PUT("/:usr_id", h.PutFavorite.Handle)
+	favoritesg.DELETE("/:usr_id", h.DeleteFavorite.Handle)
 }

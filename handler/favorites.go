@@ -23,62 +23,66 @@ func GetTwUsrParams(c echo.Context) (twID model.TwIDType, usrID model.UsrIDType,
 	return twID, usrID, nil
 }
 
-func PUTFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
-
-	return func(c echo.Context) error {
-		twID, usrID, err := GetTwUsrParams(c)
-		if err != nil {
-			return err
-		}
-
-		fav := model.Favorite{
-			TwID:  twID,
-			UsrID: usrID,
-		}
-		fav, err = favRepo.AddFavorite(fav)
-		if err != nil {
-			return err
-		}
-		return c.NoContent(200)
-	}
-}
-func DELETEFavorite(favRepo repository.IFavoriteRepository) echo.HandlerFunc {
-
-	return func(c echo.Context) error {
-		twID, usrID, err := GetTwUsrParams(c)
-		if err != nil {
-			return err
-		}
-
-		err = favRepo.DeleteFavorite(twID, usrID)
-		if err != nil {
-			return err
-		}
-		return c.NoContent(204)
-	}
+type PutFavorite struct {
+	FavRepo repository.IFavoriteRepository
 }
 
-func GETFavorites(favQuerier querier.IFavoriteQuerier) echo.HandlerFunc {
-	GetParams := func(c echo.Context) (twID model.TwIDType, err error) {
-		if twIDTmp, err := strconv.Atoi(c.Param("tw_id")); err != nil {
-			return twID, echo.NewHTTPError(400, err)
-		} else {
-			twID = model.TwIDType(twIDTmp)
-		}
-		return twID, nil
+func (h PutFavorite) Handle(c echo.Context) error {
+	twID, usrID, err := GetTwUsrParams(c)
+	if err != nil {
+		return err
 	}
 
-	return func(c echo.Context) error {
-		twID, err := GetParams(c)
-		if err != nil {
-			return err
-		}
+	fav := model.Favorite{
+		TwID:  twID,
+		UsrID: usrID,
+	}
+	fav, err = h.FavRepo.AddFavorite(fav)
+	if err != nil {
+		return err
+	}
+	return c.NoContent(200)
+}
 
-		favs, err := favQuerier.FindFavorites(twID)
-		if err != nil {
-			return err
-		}
-		return c.JSON(200, favs)
+type DeleteFavorite struct {
+	FavRepo repository.IFavoriteRepository
+}
+
+func (h DeleteFavorite) Handle(c echo.Context) error {
+	twID, usrID, err := GetTwUsrParams(c)
+	if err != nil {
+		return err
 	}
 
+	err = h.FavRepo.DeleteFavorite(twID, usrID)
+	if err != nil {
+		return err
+	}
+	return c.NoContent(204)
+}
+
+type GetFavorites struct {
+	FavQuerier querier.IFavoriteQuerier
+}
+
+func (h GetFavorites) GetParams(c echo.Context) (twID model.TwIDType, err error) {
+	if twIDTmp, err := strconv.Atoi(c.Param("tw_id")); err != nil {
+		return twID, echo.NewHTTPError(400, err)
+	} else {
+		twID = model.TwIDType(twIDTmp)
+	}
+	return twID, nil
+}
+
+func (h GetFavorites) Handle(c echo.Context) error {
+	twID, err := h.GetParams(c)
+	if err != nil {
+		return err
+	}
+
+	favs, err := h.FavQuerier.FindFavorites(twID)
+	if err != nil {
+		return err
+	}
+	return c.JSON(200, favs)
 }

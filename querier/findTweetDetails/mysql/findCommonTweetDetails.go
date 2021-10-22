@@ -3,21 +3,22 @@ package querier_tweet_detail_mysql
 import (
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/model"
-	"github.com/a-omori-yumemi/YumetterAPI/querier"
+
+	querier_tweet_detail "github.com/a-omori-yumemi/YumetterAPI/querier/findTweetDetails"
 )
 
-type CommonTweetDetailQuerier struct {
+type CommonTweetDetailsQuerier struct {
 	db db.MySQLReadOnlyDB
 }
 
-func NewCommonTweetDetailQuerier(db db.MySQLReadOnlyDB) *CommonTweetDetailQuerier {
-	return &CommonTweetDetailQuerier{db: db}
+func NewCommonTweetDetailQuerier(db db.MySQLReadOnlyDB) *CommonTweetDetailsQuerier {
+	return &CommonTweetDetailsQuerier{db: db}
 }
 
-func (u *CommonTweetDetailQuerier) FindCommonTweetDetails(
+func (u *CommonTweetDetailsQuerier) FindCommonTweetDetails(
 	requestUserID *model.UsrIDType,
 	limit int,
-	replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
+	replied_to *model.TwIDType) ([]querier_tweet_detail.CommonTweetDetail, error) {
 
 	type FlattenCommonTweetDetail struct {
 		UserName model.UserName `db:"user_name"`
@@ -48,10 +49,10 @@ func (u *CommonTweetDetailQuerier) FindCommonTweetDetails(
 		args...,
 	)
 
-	tweetDetails := make([]querier.TweetDetail, 0, len(fTweetDetails))
+	tweetDetails := make([]querier_tweet_detail.CommonTweetDetail, 0, len(fTweetDetails))
 	for _, d := range fTweetDetails {
 		tweetDetails = append(tweetDetails,
-			querier.TweetDetail{
+			querier_tweet_detail.CommonTweetDetail{
 				UserName:   d.UserName,
 				Tweet:      d.Tweet,
 				FavCount:   d.FavCount,

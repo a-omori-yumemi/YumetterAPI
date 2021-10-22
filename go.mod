@@ -4,8 +4,10 @@ go 1.17
 
 require (
 	github.com/VividCortex/mysqlerr v1.0.0
+	github.com/felixge/fgprof v0.9.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/google/wire v0.5.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/labstack/gommon v0.3.0
@@ -22,7 +24,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/felixge/fgprof v0.9.1 // indirect
 	github.com/google/pprof v0.0.0-20200615235658-03e1cf38a040 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20210913180222-943fd674d43e // indirect

@@ -19,17 +19,19 @@ func GetSessionUserID(c echo.Context) *model.UsrIDType {
 	return usrID
 }
 
-func AuthUserMiddleware(auth usecase.IAuthenticator) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			cookie, err := c.Cookie(SessionCookieName)
+type AuthUserMiddleware struct {
+	Auth usecase.IAuthenticator
+}
+
+func (m AuthUserMiddleware) Handle(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		cookie, err := c.Cookie(SessionCookieName)
+		if err == nil {
+			usrID, err := m.Auth.UseSession(cookie.Value)
 			if err == nil {
-				usrID, err := auth.UseSession(cookie.Value)
-				if err == nil {
-					c.Set(ContextUserKey, usrID)
-				}
+				c.Set(ContextUserKey, usrID)
 			}
-			return next(c)
 		}
+		return next(c)
 	}
 }

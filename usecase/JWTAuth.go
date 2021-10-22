@@ -10,10 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type SecretKey string
+
 type JWTAuthenticator struct {
 	IAuthenticator
 	userRepo  repository.IUserRepository
-	secretKey string
+	secretKey SecretKey
 }
 
 type Claim struct {
@@ -21,7 +23,7 @@ type Claim struct {
 	UsrID model.UsrIDType
 }
 
-func NewJWTAuthenticator(userRepo repository.IUserRepository, secretKey string) *JWTAuthenticator {
+func NewJWTAuthenticator(userRepo repository.IUserRepository, secretKey SecretKey) *JWTAuthenticator {
 	return &JWTAuthenticator{userRepo: userRepo, secretKey: secretKey}
 }
 
