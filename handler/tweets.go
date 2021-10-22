@@ -80,13 +80,17 @@ type GetTweets struct {
 	FindTweetDetailsQuerier querier.IFindTweetDetailsQuerier
 }
 
+const DefaultLimitValue = 30
+
 func (h GetTweets) GetParams(c echo.Context) (*model.UsrIDType, int, *model.TwIDType, error) {
-	const DefaultLimitValue = 30
 	usrID := GetSessionUserID(c)
 
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		limit = DefaultLimitValue
+	}
+	if limit > querier.MaxLimitValue {
+		return usrID, limit, nil, echo.NewHTTPError(400, "too large limit")
 	}
 
 	var repliedTo *model.TwIDType = nil

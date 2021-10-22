@@ -19,6 +19,7 @@ func buildHandlers() (handler.Handlers, error) {
 		ProvideDBConfig,
 		ProvideRODBConfig,
 		ProvideSecretKey,
+		ProvideTweetDetailsCacheLifeTime,
 		db.NewMySQLDB,
 		db.NewMySQLReadOnlyDB,
 		handler_wire.SuperSet,

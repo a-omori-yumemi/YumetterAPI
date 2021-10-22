@@ -2,7 +2,9 @@ package querier_tweet_detail
 
 import (
 	"fmt"
+	"time"
 
+	data_source_wrapper "github.com/a-omori-yumemi/YumetterAPI/dataSourceWrapper"
 	"github.com/a-omori-yumemi/YumetterAPI/model"
 	"github.com/a-omori-yumemi/YumetterAPI/querier"
 )
@@ -24,32 +26,32 @@ type IFindFavoritesByRangeQuerier interface {
 }
 
 type TweetDetailsQuerier struct {
-	cache                       CacheStore
+	dataSource                  data_source_wrapper.DataSourceWrapper
 	commonTweetDetailQuerier    ICommonTweetDetailsQuerier
 	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier
 }
 
-type CacheStore interface {
-	Set(interface{})
-	Get() interface{}
+type TweetDetailsCacheLifeTime int
+
+type CommonTweetDetailDataSourceMaker interface {
+	data_source_wrapper.DataSourceMaker
 }
 
-type MemCacheStore struct {
-	CacheStore
-	cache string
-}
-
-func NewCacheStore() *MemCacheStore {
-	return &MemCacheStore{cache: ""}
+func NewCommonTweetDetailDataSourceMaker(lifeTime TweetDetailsCacheLifeTime) CommonTweetDetailDataSourceMaker {
+	return data_source_wrapper.NewCacheMaker(time.Duration(lifeTime) * time.Second)
 }
 
 func NewTweetDetailQuerier(
 	commonTweetDetailQuerier ICommonTweetDetailsQuerier,
 	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier,
-	cache CacheStore) *TweetDetailsQuerier {
+	dataSourceMaker CommonTweetDetailDataSourceMaker) *TweetDetailsQuerier {
+
+	dataSource := dataSourceMaker.NewDataSourceWrapper(func() (interface{}, error) {
+		return commonTweetDetailQuerier.FindCommonTweetDetails(querier.MaxLimitValue, nil)
+	})
 
 	return &TweetDetailsQuerier{
-		cache:                       cache,
+		dataSource:                  dataSource,
 		commonTweetDetailQuerier:    commonTweetDetailQuerier,
 		findFavoritesByRangeQuerier: findFavoritesByRangeQuerier,
 	}
@@ -65,25 +67,29 @@ func LastTwID(ds []CommonTweetDetail) (model.TwIDType, error) {
 	return ds[0].TwID, nil
 }
 
-func FirstTwID(ds []CommonTweetDetail) (model.TwIDType, error) {
-	if len(ds) == 0 {
+func FirstTwID(ds []CommonTweetDetail, limit int) (model.TwIDType, error) {
+	if len(ds) == 0 || limit == 0 {
 		return 0, ErrCommonTweetDetailArrayIsEmpty
 	}
 	//dsはソート済み
-	return ds[len(ds)-1].TwID, nil
+	return ds[limit-1].TwID, nil
 }
 
 func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
-	commonTweetDetails, err := q.commonTweetDetailQuerier.FindCommonTweetDetails(limit, replied_to)
-	if err != nil {
-		return []querier.TweetDetail{}, err
+	commonTweetDetails, ok := q.dataSource.Get().([]CommonTweetDetail)
+	if !ok {
+		return []querier.TweetDetail{}, fmt.Errorf("failed to get TimeLine")
+	}
+
+	if limit > len(commonTweetDetails) {
+		limit = len(commonTweetDetails)
 	}
 
 	lastID, err := LastTwID(commonTweetDetails)
 	if err != nil {
 		return []querier.TweetDetail{}, err
 	}
-	firstID, err := FirstTwID(commonTweetDetails)
+	firstID, err := FirstTwID(commonTweetDetails, limit)
 	if err != nil {
 		return []querier.TweetDetail{}, err
 	}
@@ -97,16 +103,16 @@ func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, l
 	}
 
 	favIdx := 0
-	ret := make([]querier.TweetDetail, 0, len(commonTweetDetails))
-	for _, ctd := range commonTweetDetails {
+	ret := make([]querier.TweetDetail, 0, limit)
+	for i := 0; limit > i; i++ {
 		cur := querier.TweetDetail{
-			Tweet:      ctd.Tweet,
-			FavCount:   ctd.FavCount,
-			ReplyCount: ctd.ReplyCount,
-			UserName:   ctd.UserName,
+			Tweet:      commonTweetDetails[i].Tweet,
+			FavCount:   commonTweetDetails[i].FavCount,
+			ReplyCount: commonTweetDetails[i].ReplyCount,
+			UserName:   commonTweetDetails[i].UserName,
 		}
 
-		if favIdx < len(favorites) && favorites[favIdx].TwID == ctd.TwID {
+		if favIdx < len(favorites) && favorites[favIdx].TwID == commonTweetDetails[i].TwID {
 			cur.Favorited = true
 			favIdx += 1
 		}

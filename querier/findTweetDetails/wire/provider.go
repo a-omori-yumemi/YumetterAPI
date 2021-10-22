@@ -9,9 +9,8 @@ import (
 var SuperSet = wire.NewSet(
 	querier_tweet_detail_mysql.NewCommonTweetDetailQuerier,
 	querier_tweet_detail_mysql.NewFindFavoritesByRangeQuerier,
-	querier_tweet_detail.NewCacheStore,
+	querier_tweet_detail.NewCommonTweetDetailDataSourceMaker,
 
 	wire.Bind(new(querier_tweet_detail.ICommonTweetDetailsQuerier), new(*querier_tweet_detail_mysql.CommonTweetDetailsQuerier)),
 	wire.Bind(new(querier_tweet_detail.IFindFavoritesByRangeQuerier), new(*querier_tweet_detail_mysql.FindFavoritesByRangeQuerier)),
-	wire.Bind(new(querier_tweet_detail.CacheStore), new(*querier_tweet_detail.MemCacheStore)),
 )

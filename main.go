@@ -2,12 +2,14 @@ package main
 
 import (
 	"os"
+	"strconv"
 
 	"net/http"
 	_ "net/http/pprof"
 
 	"github.com/a-omori-yumemi/YumetterAPI/db"
 	"github.com/a-omori-yumemi/YumetterAPI/handler"
+	querier_tweet_detail "github.com/a-omori-yumemi/YumetterAPI/querier/findTweetDetails"
 	"github.com/a-omori-yumemi/YumetterAPI/usecase"
 	"github.com/felixge/fgprof"
 	"github.com/labstack/echo/v4"
@@ -69,6 +71,12 @@ func ProvideDBConfig() db.DBConfig {
 		ConnMaxIdletime: os.Getenv("MYSQL_WRITE_CONN_MAX_IDLE_TIME"),
 	}
 }
+
+func ProvideTweetDetailsCacheLifeTime() (querier_tweet_detail.TweetDetailsCacheLifeTime, error) {
+	t, err := strconv.Atoi(os.Getenv("TWEET_DETAILS_CACHE_LIFE_TIME"))
+	return querier_tweet_detail.TweetDetailsCacheLifeTime(t), err
+}
+
 func ProvideSecretKey() usecase.SecretKey {
 	return usecase.SecretKey(os.Getenv("SECRET_KEY"))
 }
