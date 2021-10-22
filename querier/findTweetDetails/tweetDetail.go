@@ -25,10 +25,18 @@ type IFindFavoritesByRangeQuerier interface {
 	FindFavoritesByRange(firstTwID model.TwIDType, lastTwID model.TwIDType, usrID model.UsrIDType) ([]model.Favorite, error)
 }
 
+type IFindTweetDetailsQuerier interface {
+	FindTweetDetails(
+		requestUserID *model.UsrIDType,
+		limit int,
+		replied_to *model.TwIDType) ([]querier.TweetDetail, error)
+}
+
 type TweetDetailsQuerier struct {
 	dataSource                  data_source_wrapper.DataSourceWrapper
 	commonTweetDetailQuerier    ICommonTweetDetailsQuerier
 	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier
+	findTweetDetailsQuerier     IFindTweetDetailsQuerier
 }
 
 type TweetDetailsCacheLifeTime int
@@ -44,7 +52,8 @@ func NewCommonTweetDetailDataSourceMaker(lifeTime TweetDetailsCacheLifeTime) Com
 func NewTweetDetailQuerier(
 	commonTweetDetailQuerier ICommonTweetDetailsQuerier,
 	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier,
-	dataSourceMaker CommonTweetDetailDataSourceMaker) *TweetDetailsQuerier {
+	dataSourceMaker CommonTweetDetailDataSourceMaker,
+	findTweetDetailsQuerier IFindTweetDetailsQuerier) *TweetDetailsQuerier {
 
 	dataSource := dataSourceMaker.NewDataSourceWrapper(func() (interface{}, error) {
 		return commonTweetDetailQuerier.FindCommonTweetDetails(querier.MaxLimitValue, nil)
@@ -54,6 +63,7 @@ func NewTweetDetailQuerier(
 		dataSource:                  dataSource,
 		commonTweetDetailQuerier:    commonTweetDetailQuerier,
 		findFavoritesByRangeQuerier: findFavoritesByRangeQuerier,
+		findTweetDetailsQuerier:     findTweetDetailsQuerier,
 	}
 }
 
@@ -84,11 +94,7 @@ func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, l
 			return []querier.TweetDetail{}, fmt.Errorf("failed to get TimeLine")
 		}
 	} else {
-		var err error
-		commonTweetDetails, err = q.commonTweetDetailQuerier.FindCommonTweetDetails(limit, replied_to)
-		if err != nil {
-			return []querier.TweetDetail{}, err
-		}
+		return q.findTweetDetailsQuerier.FindTweetDetails(requestUserID, limit, replied_to)
 	}
 
 	if limit > len(commonTweetDetails) {
