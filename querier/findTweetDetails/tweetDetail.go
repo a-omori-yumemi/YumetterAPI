@@ -14,15 +14,10 @@ type ICommonTweetDetailsQuerier interface {
 }
 
 type CommonTweetDetail struct {
-	UserName model.UserName `db:"user_name"`
+	UserName model.UserName
 	model.Tweet
-	FavCount   int `db:"fav_count"`
-	ReplyCount int `db:"reply_count"`
-}
-
-type IFindFavoritesByRangeQuerier interface {
-	// required to be sorted by tw_id (DESC)
-	FindFavoritesByRange(firstTwID model.TwIDType, lastTwID model.TwIDType, usrID model.UsrIDType) ([]model.Favorite, error)
+	Favorites  map[model.UsrIDType]bool
+	ReplyCount int
 }
 
 type IFindTweetDetailsQuerier interface {
@@ -33,10 +28,9 @@ type IFindTweetDetailsQuerier interface {
 }
 
 type TweetDetailsQuerier struct {
-	dataSource                  data_source_wrapper.DataSourceWrapper
-	commonTweetDetailQuerier    ICommonTweetDetailsQuerier
-	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier
-	findTweetDetailsQuerier     IFindTweetDetailsQuerier
+	dataSource               data_source_wrapper.DataSourceWrapper
+	commonTweetDetailQuerier ICommonTweetDetailsQuerier
+	findTweetDetailsQuerier  IFindTweetDetailsQuerier
 }
 
 type TweetDetailsCacheLifeTime int
@@ -51,7 +45,6 @@ func NewCommonTweetDetailDataSourceMaker(lifeTime TweetDetailsCacheLifeTime) Com
 
 func NewTweetDetailQuerier(
 	commonTweetDetailQuerier ICommonTweetDetailsQuerier,
-	findFavoritesByRangeQuerier IFindFavoritesByRangeQuerier,
 	dataSourceMaker CommonTweetDetailDataSourceMaker,
 	findTweetDetailsQuerier IFindTweetDetailsQuerier) *TweetDetailsQuerier {
 
@@ -60,29 +53,10 @@ func NewTweetDetailQuerier(
 	})
 
 	return &TweetDetailsQuerier{
-		dataSource:                  dataSource,
-		commonTweetDetailQuerier:    commonTweetDetailQuerier,
-		findFavoritesByRangeQuerier: findFavoritesByRangeQuerier,
-		findTweetDetailsQuerier:     findTweetDetailsQuerier,
+		dataSource:               dataSource,
+		commonTweetDetailQuerier: commonTweetDetailQuerier,
+		findTweetDetailsQuerier:  findTweetDetailsQuerier,
 	}
-}
-
-var ErrCommonTweetDetailArrayIsEmpty = fmt.Errorf("common tweet details is empty")
-
-func LastTwID(ds []CommonTweetDetail) (model.TwIDType, error) {
-	if len(ds) == 0 {
-		return 0, ErrCommonTweetDetailArrayIsEmpty
-	}
-	//dsはソート済み
-	return ds[0].TwID, nil
-}
-
-func FirstTwID(ds []CommonTweetDetail, limit int) (model.TwIDType, error) {
-	if len(ds) == 0 || limit == 0 {
-		return 0, ErrCommonTweetDetailArrayIsEmpty
-	}
-	//dsはソート済み
-	return ds[limit-1].TwID, nil
 }
 
 func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, limit int, replied_to *model.TwIDType) ([]querier.TweetDetail, error) {
@@ -100,41 +74,25 @@ func (q *TweetDetailsQuerier) FindTweetDetails(requestUserID *model.UsrIDType, l
 	if limit > len(commonTweetDetails) {
 		limit = len(commonTweetDetails)
 	}
-	if limit == 0 {
-		return []querier.TweetDetail{}, nil
-	}
 
-	lastID, err := LastTwID(commonTweetDetails)
-	if err != nil {
-		return []querier.TweetDetail{}, err
-	}
-	firstID, err := FirstTwID(commonTweetDetails, limit)
-	if err != nil {
-		return []querier.TweetDetail{}, err
-	}
-
-	favorites := []model.Favorite{}
-	if requestUserID != nil {
-		favorites, err = q.findFavoritesByRangeQuerier.FindFavoritesByRange(firstID, lastID, *requestUserID)
-		if err != nil {
-			return []querier.TweetDetail{}, err
-		}
-	}
-
-	favIdx := 0
 	ret := make([]querier.TweetDetail, 0, limit)
 	for i := 0; limit > i; i++ {
+		favorited := false
+		if requestUserID != nil {
+			var ok bool
+			if favorited, ok = commonTweetDetails[i].Favorites[*requestUserID]; !ok {
+				favorited = false
+			}
+		}
+
 		cur := querier.TweetDetail{
 			Tweet:      commonTweetDetails[i].Tweet,
-			FavCount:   commonTweetDetails[i].FavCount,
+			FavCount:   len(commonTweetDetails[i].Favorites),
+			Favorited:  favorited,
 			ReplyCount: commonTweetDetails[i].ReplyCount,
 			UserName:   commonTweetDetails[i].UserName,
 		}
 
-		if favIdx < len(favorites) && favorites[favIdx].TwID == commonTweetDetails[i].TwID {
-			cur.Favorited = true
-			favIdx += 1
-		}
 		ret = append(ret, cur)
 	}
 
