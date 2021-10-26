@@ -37,9 +37,9 @@ func (u *CommonTweetDetailsQuerier) FindCommonTweetDetails(
 	err := u.db.DB.Select(&fTweetDetails,
 		`SELECT 
 		 U.name user_name,
-		 (SELECT count(1) FROM Tweet WHERE replied_to=T.tw_id) reply_count,
+		 STATS.reply_count reply_count,
 		 T.*
-		 FROM Tweet T JOIN User U USING(usr_id) `+
+		 FROM Tweet T JOIN User U USING(usr_id) JOIN TweetStats STATS USING(tw_id) `+
 			whereClause+
 			` ORDER BY tw_id DESC limit ?`,
 		args...,

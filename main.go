@@ -26,7 +26,7 @@ type DBConfig struct {
 }
 
 func main() {
-	log.Print("test2")
+	log.Print("test3")
 	http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler())
 	go func() {
 		log.Print(http.ListenAndServe(":6060", nil))

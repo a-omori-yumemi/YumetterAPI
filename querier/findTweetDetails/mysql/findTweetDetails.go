@@ -41,10 +41,12 @@ func (u *FindTweetDetailsQuerier) FindTweetDetails(
 	// T.*
 	err := u.db.DB.Select(&fTweetDetails,
 		`SELECT 
-		 (SELECT count(1) FROM Favorite WHERE tw_id=T.tw_id) fav_count,
-		 (SELECT count(1) FROM Tweet WHERE replied_to=T.tw_id) reply_count,
-		 (F.usr_id is not NULL) favorited
-		 FROM Tweet T LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=? `+
+		 U.name user_name,
+		 STATS.fav_count fav_count,
+		 STATS.reply_count reply_count,
+		 (F.usr_id is not NULL) favorited,
+		 T.*
+		 FROM Tweet T JOIN User U USING(usr_id) JOIN TweetStats STATS USING(tw_id) LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=? `+
 			whereClause+
 			` ORDER BY tw_id DESC limit ?`,
 		args...,
@@ -70,3 +72,14 @@ func (u *FindTweetDetailsQuerier) FindTweetDetails(
 // FROM Tweet T LEFT OUTER JOIN
 // (SELECT * FROM Favorite WHERE usr_id=25 ORDER BY tw_id DESC limit 30) F USING(tw_id)
 // ORDER BY tw_id DESC limit 30
+
+/*
+SELECT
+	U.name user_name,
+	STATS.fav_count fav_count,
+	STATS.reply_count reply_count,
+	(F.usr_id is not NULL) favorited,
+	T.*
+	FROM Tweet T JOIN User U USING(usr_id) JOIN TweetStats STATS USING(tw_id) LEFT OUTER JOIN Favorite F ON T.tw_id=F.tw_id AND F.usr_id=100000
+	ORDER BY tw_id DESC limit 30
+*/
