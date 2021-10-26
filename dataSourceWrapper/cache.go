@@ -22,7 +22,7 @@ type CacheMaker struct {
 
 func NewCacheMaker(lifeTime time.Duration) *CacheMaker {
 	return &CacheMaker{
-		lifeTime: 2,
+		lifeTime: lifeTime,
 	}
 }
 
