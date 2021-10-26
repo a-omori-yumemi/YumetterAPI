@@ -53,7 +53,7 @@ func NewAsyncAddFavorite(db db.MySQLDB) *AsyncAddFavorite {
 			fav := <-ret.favChan
 			ret.mutex.Lock()
 			ret.addedFavorites = append(ret.addedFavorites, fav)
-			ret.mutex.Lock()
+			ret.mutex.Unlock()
 		}
 	}()
 	time.AfterFunc(1*time.Second, ret.CollectFavorites)
