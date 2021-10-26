@@ -34,6 +34,7 @@ func (m CacheMaker) NewDataSourceWrapper(f func() (interface{}, error)) DataSour
 		var err error
 		ret.cache, err = f()
 		log.Print("UPDATED CACHE!!")
+		ret.updatedAt = time.Now()
 		return ret.cache, err
 	}
 	return ret
