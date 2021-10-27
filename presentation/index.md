@@ -1,8 +1,9 @@
 ---
 marp: true
+theme: eyemono
 ---
 
-# 6000 requests per second くらいのサービスを作る
+# 8000 requests per second くらいのサービスを作る
 大森　章裕 
 
 ---
@@ -50,7 +51,61 @@ Twitter: @oreha_senpai
 随所に得た知見を散りばめていく
 
 ---
-# Yumetterとは！！
+# 仕様
+---
+# エンドポイント
+
+<div class="split-v">
+<ul>
+<li>
+<p style="font-weight:bold">
+/tweets
+</p>
+<ul>
+    <li class="M-GET M-EP">/</li> 
+    <ul><li>全世界タイムライン</li> <li>?replied_to=のクエリパラメータ</li><li>一番重い</li></ul>
+    <li class="M-POST M-EP">/</li> ツイートする 
+    <li class="M-EP M-GET">/{tw_id}</li> ツイート参照
+    <li class="M-EP M-DELETE">/{tw_id}</li> ツイート削除
+</ul></li></ul>
+
+<ul>
+<li>
+<p style="font-weight:bold">
+/users
+</p>
+<ul>
+    <li class="M-GET M-EP">/{usr_id}</li>プロフィールを取得
+    <li class="M-POST M-EP">/</li> ユーザー登録
+    <li class="M-POST M-EP">/users/login</li> ログイン
+    <li class="M-GET M-EP">/users/me</li> 
+    <li class="M-PATCH M-EP">/users/me</li>
+    <li class="M-DELETE M-EP">/users/me</li>
+</ul></li></ul>
+<ul>
+<li>
+<p style="font-weight:bold">
+/tweets/{tw_id}/favorites
+</p>
+<ul>
+    <li class="M-GET M-EP">/</li> Favの存在を取得
+    <li class="M-PUT M-EP">/{usr_id}</li> Favする
+    <li class="M-DELETE M-EP">/{usr_id}</li> Fav消す
+</ul></li></ul>
+</div>
+</div>
 
 ---
-![](https://i.gyazo.com/209a3a2ae58fd2ba238e8d022c1170d4.png)
+# ER
+![a](../er/er.png)
+
+
+---
+# 設計に関して
+```
+|-Usecase
+    |
+    |-mysql
+        
+|-Repository
+```

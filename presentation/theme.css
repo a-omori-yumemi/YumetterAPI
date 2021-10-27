@@ -170,3 +170,53 @@
      flex-direction: column;
      justify-content: center;
  }
+
+ .M-EP.M-GET {
+    --bgcolor:rgb(97, 175, 254); 
+    --METHOD:'GET';
+ }
+ .M-EP.M-DELETE {
+    --bgcolor:rgb(249, 62, 62); 
+    --METHOD:'DELETE';
+ }
+
+ .M-EP.M-POST {
+    --bgcolor:rgb(73, 204, 144); 
+    --METHOD:'POST';
+ }
+
+ .M-EP.M-PATCH {
+    --bgcolor:rgb(80, 227, 194); 
+    --METHOD:'PUT';
+ }
+
+ .M-EP.M-PUT {
+    --bgcolor:rgb(252, 161, 48); 
+    --METHOD:'PATCH';
+ }
+
+
+ .M-EP {
+    background: #eaf6fa;
+    border: solid 4px var(--bgcolor);
+    border-radius: 16px;
+    padding-left:auto;
+    padding-right:0;
+    font-weight:bold;
+    white-space: nowrap;
+    display:flex;
+    padding-right: 1.5rem;
+}
+
+ .M-EP::before {
+    content:var(--METHOD);
+    background: var(--bgcolor);
+    color:white;
+    border-radius: 3px;
+    font-family: sans-serif;
+    font-weight: 700;
+    text-align: center;
+    text-shadow: 0 1px 0 rgb(0 0 0 / 10%);
+    margin-right:10%;
+    min-width: 5rem;
+ }
