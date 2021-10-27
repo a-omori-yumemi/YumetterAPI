@@ -153,8 +153,8 @@
  
  .split-v {
      display: flex;
-     justify-content: center;
-     align-items: center;
+     justify-content: space-around;
+     align-items: flex-start;
  }
  
  .split-v>* {
